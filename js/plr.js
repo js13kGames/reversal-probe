@@ -1,11 +1,60 @@
 var Plr = function() {
   var trail = [],
+    envw = env.w / 2,
+    trail_bounds = [ env.w, env.w, 0, 0 ];
     exy = [ env.x, env.y ],
-    tail_end = [ 1500, 1500 ];
-  for ( var i = 0, l = 200; i < l; i++ ) {
+    tail = [ ],
+    tail_end = [ envw,envw ];
+  for ( var i = 0, l = 100; i < l; i++ ) {
     trail.push( exy );
   }
+  function extend_trail_bounds( pt ) {
+    trail_bounds[ 0 ] = Math.min( trail_bounds[ 0 ], pt[ 0 ] );
+    trail_bounds[ 1 ] = Math.min( trail_bounds[ 1 ], pt[ 1 ] );
+    trail_bounds[ 2 ] = Math.max( trail_bounds[ 2 ], pt[ 0 ] );
+    trail_bounds[ 3 ] = Math.max( trail_bounds[ 3 ], pt[ 1 ] );
+  }
+  function get_trail_bounds() {
+    trail_bounds = [ env.w, env.w, 0, 0 ];
+    for ( var t = trail.length - 1; t > 0; t-- ) {
+      extend_trail_bounds( trail[ t ] );
+    }
+  }
   return {
+    is_in_trail_bounds: function( nmyx, nmyy ) {
+      if ( nmyx > trail_bounds[ 0 ] && nmyx < trail_bounds[ 2 ] && 
+        nmyy > trail_bounds[ 1 ] && nmyy < trail_bounds[ 3 ] ) {
+        return true;
+      }
+      return false;
+    },
+    is_touching_trail: function( nmyx, nmyy, nmyr ) {
+      for ( var t = trail.length - 1; t > 0; t-- ) {
+        if ( utl.is_close_course( nmyx, nmyy, nmyr, trail[ t ][ 0 ], trail[ t ][ 1 ], -1 ) ) {
+          return true;
+        }
+      }
+      return false;
+    },
+    add_to_tail: function( nmy ) {
+      con += 6;
+      tail.push( nmy );
+    },
+    tail_ht: function( nx, ny, nr ) {
+      for ( var t = 0, l = tail.length; t < l; t++ ) {
+        var n = tail[ t ];
+        if ( utl.is_close_course( nx, ny, nr, n.x, n.y, n.r) && utl.is_close( nx, ny, nr, n.x, n.y, n.r ) ) { 
+          // tail nmy die
+          // all higher tail nmys die
+          // console.log('hit|' + nx + '|' + ny + '|' + nr + '|' + n.x + '|' + n.y + '|' + n.r);
+          return true; 
+        }; 
+      }
+      return false;
+    },
+    is_touching_end: function( nmyx, nmyy, nmyr ) {
+      return utl.is_close( nmyx, nmyy, nmyr, tail_end[ 0 ], tail_end[ 1 ], 6.5 );
+    },
     mv: function() {
       if ( ins.keysDown.left ) { rgd.ply.rot -= 0.01; };
       if ( ins.keysDown.right ) { rgd.ply.rot += 0.01; };
@@ -28,8 +77,17 @@ var Plr = function() {
       rgd.ang.vel *= 0.996;
       rgd.lin.vx *= 0.99;
       rgd.lin.vy *= 0.99;
-      trail.shift();
-      trail.push( tail_end );
+      if ( frame % 3 ) {
+        var trail_rm = trail.shift();
+        if ( trail_rm[ 0 ] <= trail_bounds[ 0 ] ||
+          trail_rm[ 0 ] >= trail_bounds[ 2 ] ||
+          trail_rm[ 1 ] <= trail_bounds[ 1 ] ||
+          trail_rm[ 1 ] >= trail_bounds[ 3 ] ) {
+          get_trail_bounds();
+        }
+        trail.push( tail_end );
+        extend_trail_bounds( tail_end );
+      }
     },
     drw: function() {
       var oxy = utl.plr_to_scr (env.x, env.y);
@@ -40,7 +98,8 @@ var Plr = function() {
       var pxy1 = utl.get_xy (rgd.ply.ang, 12, xy[ 0 ], xy[ 1 ]);
       var pxy2 = utl.get_xy (rgd.ply.ang + 1, -7, xy[ 0 ], xy[ 1 ]);
       var pxy3 = utl.get_xy (rgd.ply.ang - 1, -7, xy[ 0 ], xy[ 1 ]);
-      if ( ins.keysDown.up ) { 
+      cx.lineWidth = 1;
+      if ( ins.keysDown.up ) {
         cx.beginPath();
         cx.strokeStyle = 'rgb(150,150,150)';
         var fxy = utl.get_xy (rgd.ply.ang, -25, xy[ 0 ], xy[ 1 ]);
@@ -64,40 +123,51 @@ var Plr = function() {
       cx.lineTo( pxy3[ 0 ], pxy3[ 1 ] );
       cx.lineTo( xy[ 0 ], xy[ 1 ] );
       cx.fillStyle = 'white';
+      cx.strokeStyle= 'black';
       cx.fill();
+      cx.stroke();
       cx.closePath();
       cx.beginPath();
-      cx.strokeStyle = 'rgb(220,220,255)';
-      var n = 0;
-      while ( 6*n + 2 < con ) {
-        // draw reversed nmy
-        n+=1;
-        xy = utl.get_xy (rad, -12, xy[0], xy[1]);
-        old = lasttows[n] ? lasttows[n] : xy;
-        xy[0] = xy[0] - (xy[0] - old[0]) / 16 * n;
-        xy[1] = xy[1] - (xy[1] - old[1]) / 16 * n;
-        cx.moveTo( xy[0] + 5, xy[1] );
-        cx.arc( xy[0], xy[1], 5, 0, 2*pi );
-        lasttows[n]=xy;
-        if ( con - 6*n < 8 ) {
-          tail_end = [ xy[ 0 ] + env.scrx, xy[ 1 ] + env.scry ];
-          cx.fill();
+
+      //var n = 0;
+      //
+      for ( var t = 0, l = tail.length; t < l; t++ ) {
+        if ( tail[ t ] ) {
+        //while ( 6*n + 2 < con ) {
+          // draw reversed nmy
+          // n+=1;
+          xy = utl.get_xy (rad, -12, xy[0], xy[1]);
+          old = lasttows[ t ] || xy;
+          xy[0] = xy[0] - (xy[0] - old[0]) / 16 * t;
+          xy[1] = xy[1] - (xy[1] - old[1]) / 16 * t;
+          lasttows[ t ] = xy;
+          tail[ t ].x = xy[ 0 ] + env.scrx;
+          tail[ t ].y = xy[ 1 ] + env.scry;
+          //console.log( tail[ t ] );
         }
       }
+      // draw tailend
+      xy = utl.get_xy (rad, -12, xy[0], xy[1]);
+      cx.moveTo( xy[0] + 6.5, xy[1] );
+      cx.arc( xy[0], xy[1], 6.5, 0, 2*pi );
+      tail_end = [ xy[ 0 ] + env.scrx, xy[ 1 ] + env.scry ];
+      cx.fillStyle = 'green';
+      cx.fill();
       cx.stroke();
       cx.closePath();
       cx.moveTo( trail[ 0 ][ 0 ] - env.scrx, trail[ 0 ][ 1 ] - env.scry );
       var curx = trail[ 0 ][ 0 ];
       var cury = trail[ 0 ][ 1 ];
+      cx.strokeStyle = 'rgb(220,220,255)';
       for ( var i = 0, l = trail.length; i < l; i++) {
-        if ( Math.abs( trail[ i ][ 0 ] - curx ) < 100 && 
+        if ( Math.abs( trail[ i ][ 0 ] - curx ) < 100 &&
           ( Math.abs( trail[ i ][ 0 ] - curx ) > 3 ||
           Math.abs( trail[ i ][ 1 ] - cury ) > 3 ) ) {
           cx.beginPath();
           cx.strokeStyle = 'rgba(255,255,255,' + ( i / 100 ) + ')';
-          cx.lineWidth = i / 50;
+          cx.lineWidth = i / 30;
           cx.moveTo( curx - env.scrx, cury - env.scry );
-          cx.lineTo( trail[ i ][ 0 ] - env.scrx, 
+          cx.lineTo( trail[ i ][ 0 ] - env.scrx,
             trail[ i ][ 1 ] - env.scry );
           cx.stroke();
           cx.closePath();
@@ -105,7 +175,13 @@ var Plr = function() {
           cury = trail[ i ][ 1 ];
         }
       }
-      cx.lineWidth = 1;
+      // draw trail bounds for testing
+      // cx.beginPath();
+      // cx.strokeStyle = 'red';
+      // cx.lineWidth = 1;
+      // cx.rect( trail_bounds[ 0 ] - env.scrx, trail_bounds[ 1 ] - env.scry, trail_bounds[ 2 ] - trail_bounds[ 0 ], trail_bounds[ 3 ] - trail_bounds[ 1 ] );
+      // cx.stroke();
+      // cx.closePath();
     }
   }
 }

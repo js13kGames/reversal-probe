@@ -30,9 +30,27 @@ var cv = document.getElementById('cv'),
     x: 1500,
     y: 1000,
     scrx: 0,
-    scry: 0
+    scry: 0,
+    bg_col: [ 0, 0, 0 ]
   },
   frame = 0,
   lastframe = 0,
   log = 'Log message',
-  game_mode = 'start';
+  game_mode = 'start',
+  uniqr = Math.random(),
+  uniqg = Math.random(),
+  uniqb = Math.random(),
+
+  // settings
+
+  settings = {
+    'show_bg': true,
+    'show_plr': true,
+    'show_nmy1': true,
+    'amt_bg': 80
+  }
+
+  paused = 0;
+
+  nmys = [];
+

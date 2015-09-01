@@ -23,8 +23,8 @@ var Utl = function() {
       return [ Math.round( xy[ 0 ]), Math.round( xy[ 1 ] ) ];
     },
     bounds: function( p, l ) {
-      if ( p < -20 ) { lasttows = []; return l + 20; }
-      if ( p > l + 20 ) { lasttows = []; return -20; }
+      if ( p < 0 ) { return 0; }
+      if ( p > l ) { return l; }
       return p;
     },
     cv_log: function( mess ) {
@@ -43,7 +43,7 @@ var Utl = function() {
       return ( r * Math.sin( offst * frame / 1500 + offst * 100 ) / 2 );
     },
     is_close_course: function( x1, y1, r1, x2, y2, r2 ) {
-      if ( x1 - x2 < r1 + r2 && y1 - y2 < r1 + r2 ) {
+      if ( Math.abs( x1 - x2 ) < r1 + r2 && Math.abs( y1 - y2 ) < r1 + r2 ) {
         return true;
       }
       return false;
@@ -57,10 +57,68 @@ var Utl = function() {
       return false;
     },
     is_in_bounds: function( lxmin, lxmax, lymin, lymax, px, py ) {
-      if ( px > lxmin && px < lxmax && py > pymin && py > lymin && py < lymax ) {
-        return true;
+      return ( px > lxmin && px < lxmax && py > lymin && py < lymax );
+    },
+    in_env: function( bx, by, br ) {
+      return utl.is_in_bounds( -br, env.w + br, -br, env.h + br, bx, by );
+    },
+    is_showing: function( x, y, r ) {
+      var margin = r * 1.5;
+      return ( ( x > env.scrx - margin ) && 
+        ( x < env.scrx + cvw + margin ) && 
+        ( y > env.scry - margin ) && 
+        ( y < env.scry + cvh + margin ) );
+    },
+    angle_between: function( x1, y1, x2, y2 ) {
+      return ( Math.atan2( y2 - y1, x2 - x1 ) + pi * 9) % (Math.PI*2);
+    },
+    turn_dir: function( x1, y1, x2, y2, a ) {
+      var ang = utl.angle_between( x1, y1, x2, y2 );
+      if ( ( a % ( 2*pi ) ) + 2*pi < ( ang % ( 2*pi ) ) + 2*pi ) {
+        return 1;
       }
-      return false;
+      return -1;
+    },
+    which_way: function( s, t ){
+      var retval = 1,
+        source = ( s + pi * 10 ) % ( 2 * pi ),
+        target = ( t + pi * 10 ) % ( 2 * pi );
+      if( Math.abs( target - source ) > pi / 10 ) {
+        if ( target < source - pi ) {
+          retval = -1;
+        } else if ( target > source && ( 2 * pi - target ) + source > pi ) {
+          retval = -1;
+        }
+      }
+      return retval;
+    },
+    remove_nmy: function( nmy_pos ) {
+      nmys.splice( nmy_pos, 1 );
+    },
+    visibility_event: function() {
+      paused = document.hidden ? 1 : 0;
+    },
+    get_first_close_nmy: function( x, y ) {
+      for ( var n = 0, l = nmys.length; n < l; n++ ) {
+        var nmy = nmys[ n ];
+        if ( Math.abs( nmy.x - x ) < 300 && Math.abs ( nmy.y - y ) < 300 ) {
+          if ( [ 'follow', 'circle', 'retreat' ].indexOf( nmy.action ) > -1 ) {
+            return nmy;
+          } 
+        }
+      }
+      return;
+    },
+    ht_nmys: function( bx, by, br ) {
+      for ( var n = 0, l = nmys.length; n < l; n++ ) {
+        var nmy = nmys[ n ];
+        if ( [ 'follow', 'circle', 'retreat' ].indexOf( nmy.action ) > -1 && 
+          utl.is_close( nmy.x, nmy.y, nmy.r, bx, by, br ) ) {
+          console.log('dead!');
+          nmy.death_init();
+          return true;
+        }
+      }
     }
   };
 };
