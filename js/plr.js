@@ -43,10 +43,12 @@ var Plr = function() {
     tail_ht: function( nx, ny, nr ) {
       for ( var t = 0, l = tail.length; t < l; t++ ) {
         var n = tail[ t ];
-        if ( utl.is_close_course( nx, ny, nr, n.x, n.y, n.r) && utl.is_close( nx, ny, nr, n.x, n.y, n.r ) ) { 
-          // tail nmy die
-          // all higher tail nmys die
-          // console.log('hit|' + nx + '|' + ny + '|' + nr + '|' + n.x + '|' + n.y + '|' + n.r);
+        if ( utl.is_close_course( nx, ny, nr, n.x, n.y, n.r) && 
+          utl.is_close( nx, ny, nr, n.x, n.y, n.r ) ) { 
+          n.death_init();
+          tail.splice( t, 1 );
+          con -= 6;          
+          // all higher tail nmys die?
           return true; 
         }; 
       }

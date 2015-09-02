@@ -35,8 +35,8 @@ var Ngn = function() {
   function mv() {
     toa = window.setTimeout( mv, 17 );
     if ( paused === 1 ) { return; };
-    if ( nmys.length < 20 && !(frame % 300 ) ) {
-      nmys.push( new Nmy1() );
+    if ( nmys.length < 20 + frame / 5000 && !(frame % 200 ) ) {
+      nmys.push( utl.any( 2, 0 ) ? new Nmy2() : new Nmy1() );
     }
     for ( var i = 0, l = nmys.length; i < l; i++ ) {
       if ( nmys[ i ] ) {
@@ -63,4 +63,5 @@ if(document.addEventListener) {
 var ngn = new Ngn();
 
 // temp init nmys
-nmys.push( new Nmy1() );
+//nmys.push( new Nmy1() );
+nmys.push( new Nmy2() );

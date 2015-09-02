@@ -85,9 +85,35 @@ function Nmy0() {
     }
   };
 
+  n.npt_xy = function( a, r ) {
+    return utl.get_xy( a, r, n.x - env.scrx, n.y - env.scry );
+  }
+
   n.mv = function( nmy_pos ) {};
     
   n.drw = function( ex, ey ) {};
+
+  n.drw_death = function() {
+    var alpha = ( 100 - n.bits_count++ * 3 ) / 100;
+    cx.strokeStyle = 'rgba(255,32,0,' + alpha + ')';
+    cx.fillStyle = 'rgba(255,224,0,' + alpha + ')';
+    for ( var i = 0, l = n.bits.length; i < l; i++ ) {
+      if ( !n.bits[ i ] || n.bits[ i ][ 5 ] < n.bits_count ) {
+        n.bits.splice( i, 1 );
+        continue;
+      }
+      var bxy = utl.get_xy( n.bits[ i ][ 4 ], n.dbits / n.bits[ i ][ 0 ] * 3, n.x - env.scrx, n.y - env.scry );
+      cx.beginPath();
+      cx.moveTo( bxy[ 0 ] + n.bits[ i ][ 0 ], bxy[ 1 ] );
+      cx.lineTo( bxy[ 0 ], bxy[ 1 ] + n.bits[ i ][ 1 ] );
+      cx.lineTo( bxy[ 0 ] + n.bits[ i ][ 2 ], bxy[ 1 ] );
+      cx.lineTo( bxy[ 0 ], bxy[ 1 ] + n.bits[ i ][ 3 ] );
+      cx.lineTo( bxy[ 0 ] + n.bits[ i ][ 0 ], bxy[ 1 ] );
+      cx.fill();
+      cx.stroke();
+      cx.closePath();
+    }
+  };
 
 }
 
@@ -96,7 +122,7 @@ var Nmy1 = function() {
   Nmy0.call( n );
 
   n.r = 6.5;
-  n.shyness = 75 * n.v;
+  n.shyness = 80 * n.v;
   n.clockwise = ( ( utl.any( 2, 0 ) ) - 0.5 );
 
   n.circle = function() {
@@ -155,6 +181,7 @@ var Nmy1 = function() {
           if ( !(frame % ~~( n.v * 100 ) ) ) {
             nmys.push( new PlrBllt( n.x, n.y ) );
           }
+          n.a += rgd.ang.vel;
         break;
       case 'death' :
         if ( !( n.bits.length ) || n.bits_count > 32 ) {
@@ -164,47 +191,166 @@ var Nmy1 = function() {
     }
   };
 
-    n.drw = function( ex, ey ) {
+  n.drw = function( ex, ey ) {
     switch ( n.action ) {
       case 'follow' :
       case 'wobble' :
       case 'circle' :
       case 'retreat' :
       case 'reversed' :
+        var sf = n.a + pi / 2 + 0.8 * Math.sin( frame * n.v / 12 ),
+          cf = n.a - pi / 2 - 0.8 * Math.cos( frame * n.v / 11 ),
+          adj = 0.06* pi,
+          sm = n.r * 0.2,
+          lg = n.r * 0.8;
+        if ( n.action === 'wobble' || n.action === 'reversed' ) {
+          sf = n.a + pi / 2;
+          cf = n.a - pi / 2;
+        }
+        var arms = [
+            n.npt_xy( sf - adj, n.r * 0.8 ),
+            n.npt_xy( sf + adj, n.r * 0.8 ),
+            n.npt_xy( n.a - adj, n.r * 0.2 ),
+            n.npt_xy( n.a + adj, n.r * 0.2 ),
+            n.npt_xy( cf - adj, n.r * 0.8 ),
+            n.npt_xy( cf + adj, n.r * 0.8 ),
+            n.npt_xy( n.a - adj, n.r * 0.2 ),
+            n.npt_xy( n.a + adj, n.r * 0.2 )
+          ],
+          pts = [ 
+            n.npt_xy( n.a, n.r * 0.6 ),
+            n.npt_xy( n.a + pi * 0.13, n.r),
+            n.npt_xy( n.a + pi * 0.22, n.r),
+            n.npt_xy( n.a + pi * 0.91, n.r),
+            n.npt_xy( n.a + pi * 1.09, n.r),
+            n.npt_xy( n.a + pi * 1.78, n.r),
+            n.npt_xy( n.a + pi * 1.87, n.r) 
+          ];
+
         cx.lineWidth = 1;
-        cx.beginPath();
-        cx.lineTo( n.x - ex + n.r, n.y - ey);
-        cx.arc( n.x - ex, n.y - ey, n.r, 0, 2 * pi );
         cx.fillStyle = n.fill;
         cx.strokeStyle = n.stroke;
+        cx.beginPath();
+        cx.moveTo( arms[ 0 ][ 0 ], arms[ 0 ][ 1 ] );
+        for ( var p = arms.length - 1; p > -1; p-- ) {
+          cx.lineTo( arms[ p ][ 0 ], arms[ p ][ 1 ] );
+        }
+        cx.fill();
+        cx.stroke();
+        cx.closePath();
+        cx.beginPath();
+        cx.moveTo( pts[ 0 ][ 0 ], pts[ 0 ][ 1 ] );
+        for ( var p = pts.length - 1; p > -1; p-- ) {
+          cx.lineTo( pts[ p ][ 0 ], pts[ p ][ 1 ] );
+        }
         cx.fill();
         cx.stroke();
         cx.closePath();
         break;
       case 'death' :
-        var alpha = ( 100 - n.bits_count++ * 3 ) / 100;
-        cx.strokeStyle = 'rgba(255,32,0,' + alpha + ')';
-        cx.fillStyle = 'rgba(255,224,0,' + alpha + ')';
-        for ( var i = 0, l = n.bits.length; i < l; i++ ) {
-          if ( !n.bits[ i ] || n.bits[ i ][ 5 ] < n.bits_count ) {
-            n.bits.splice( i, 1 );
-            continue;
+        n.drw_death();
+        break;
+    }
+  };
+
+}
+
+var Nmy2 = function() {
+  var n = this;
+  Nmy0.call( n );
+  n.fill = 'black';
+  n.stroke = 'white';
+  n.r = 7;
+  n.v = 2 + utl.infany( 1 );
+
+  n.mv = function( nmy_pos ) {
+    n.id =  nmy_pos;
+    n[ n.action ]();
+    switch( n.action ) {
+      case 'wobble' :
+        if ( plr.is_touching_end( n.x, n.y, n.r ) ) {
+          n.action = 'reversed';
+          n.fill = 'white';
+          plr.add_to_tail( n );
+        } else {
+          if ( n.countdown < 80 ) {
+            n.fill = ( ~~( n.countdown / 8 ) % 2 ) ? 'white' : 'black';
           }
-          var bxy = utl.get_xy( n.bits[ i ][ 4 ], n.dbits / n.bits[ i ][ 0 ] * 3, n.x - env.scrx, n.y - env.scry );
-          cx.beginPath();
-          cx.moveTo( bxy[ 0 ] + n.bits[ i ][ 0 ], bxy[ 1 ] );
-          cx.lineTo( bxy[ 0 ], bxy[ 1 ] + n.bits[ i ][ 1 ] );
-          cx.lineTo( bxy[ 0 ] + n.bits[ i ][ 2 ], bxy[ 1 ] );
-          cx.lineTo( bxy[ 0 ], bxy[ 1 ] + n.bits[ i ][ 3 ] );
-          cx.lineTo( bxy[ 0 ] + n.bits[ i ][ 0 ], bxy[ 1 ] );
-          cx.fill();
-          cx.stroke();
-          cx.closePath();
+        }
+        break;
+      case 'reversed' :
+          n.a += rgd.ang.vel;
+        break;
+      case 'death' :
+        if ( !( n.bits.length ) || n.bits_count > 32 ) {
+          utl.remove_nmy( n.id );
         }
         break;
     }
   };
 
+  n.drw = function() {
+
+    switch ( n.action ) {
+
+      case 'follow':
+      case 'wobble':
+      case 'reversed':
+        cx.lineWidth = 1;
+        cx.fillStyle = n.fill;
+        cx.strokeStyle = n.stroke;
+
+        var a1 = n.a + pi / 3 + 0.4 * Math.sin( frame * n.v / 10 ),
+          a2 = n.a - pi / 3 - 0.4 * Math.cos( frame * n.v / 11 );
+        if ( n.action === 'wobble' || n.action === 'reversed' ) {
+          a1 = n.a + pi / 3;
+          a2 = n.a - pi / 3;
+        }
+        var arms = [
+          n.npt_xy( a1 - 0.06 * pi, n.r * 1.1 ),
+          n.npt_xy( a1 - 0.18 * pi, n.r * 1.2 ),
+          n.npt_xy( a1 - 0.16 * pi, n.r * 1.4 ),
+          n.npt_xy( a1 + 0.06 * pi, n.r * 1.1 ),
+          n.npt_xy( n.a - 0.06 * pi, n.r * 0.2 ),
+          n.npt_xy( n.a + 0.06 * pi, n.r * 0.2 ),
+          n.npt_xy( a2 + 0.06 * pi, n.r * 1.1 ),
+          n.npt_xy( a2 + 0.18 * pi, n.r * 1.2 ),
+          n.npt_xy( a2 + 0.16 * pi, n.r * 1.4 ),
+          n.npt_xy( a2 - 0.06 * pi, n.r * 1.1 ),
+          n.npt_xy( n.a - 0.06 * pi, n.r * 0.2 ),
+          n.npt_xy( n.a + 0.06 * pi, n.r * 0.2 )
+        ];
+        var pts = [ 
+          n.npt_xy( n.a, n.r * 1.1 ),
+          n.npt_xy( n.a + pi * 0.3, n.r),
+          n.npt_xy( n.a + pi * 0.91, n.r),
+          n.npt_xy( n.a + pi * 1.09, n.r),
+          n.npt_xy( n.a + pi * 1.7, n.r) 
+        ];
+
+        cx.beginPath();
+        cx.moveTo( arms[ 0 ][ 0 ], arms[ 0 ][ 1 ] );
+        for ( var p = arms.length - 1; p > -1; p-- ) {
+          cx.lineTo( arms[ p ][ 0 ], arms[ p ][ 1 ] );
+        }
+        cx.fill();
+        cx.stroke();
+        cx.closePath();
+        cx.beginPath();
+        cx.moveTo( pts[ 0 ][ 0 ], pts[ 0 ][ 1 ] );
+        for ( var p = pts.length - 1; p > -1; p-- ) {
+          cx.lineTo( pts[ p ][ 0 ], pts[ p ][ 1 ] );
+        }
+        cx.fill();
+        cx.stroke();
+        cx.closePath();
+        break;
+
+      case 'death':
+        n.drw_death();
+        break;
+    }
+  }
 }
 
 var NmyBllt = function( ex, ey ) {
