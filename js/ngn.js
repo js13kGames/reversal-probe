@@ -63,5 +63,5 @@ if(document.addEventListener) {
 var ngn = new Ngn();
 
 // temp init nmys
-//nmys.push( new Nmy1() );
+nmys.push( new Nmy1() );
 nmys.push( new Nmy2() );
