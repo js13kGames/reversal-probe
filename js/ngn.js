@@ -37,6 +37,7 @@ var Ngn = function() {
     if ( paused === 1 ) { return; };
     if ( nmys.length < 20 + frame / 5000 && !(frame % 200 ) ) {
       nmys.push( utl.any( 2, 0 ) ? new Nmy2() : new Nmy1() );
+      //nmys.push( new Nmy1() );
     }
     for ( var i = 0, l = nmys.length; i < l; i++ ) {
       if ( nmys[ i ] ) {
@@ -64,4 +65,4 @@ var ngn = new Ngn();
 
 // temp init nmys
 nmys.push( new Nmy1() );
-nmys.push( new Nmy2() );
+//nmys.push( new Nmy2() );

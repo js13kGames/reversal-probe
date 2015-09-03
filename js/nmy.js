@@ -50,6 +50,9 @@ function Nmy0() {
   };
 
   n.death = function() {
+    if ( n.bits_count < 0 ) {
+      return;
+    }
     n.translate();
     n.v *= 0.98;
     n.dbits += n.vbits;
@@ -94,7 +97,10 @@ function Nmy0() {
   n.drw = function( ex, ey ) {};
 
   n.drw_death = function() {
-    var alpha = ( 100 - n.bits_count++ * 3 ) / 100;
+    if ( n.bits_count++ < 0 ) {
+      return;
+    }
+    var alpha = ( 100 - n.bits_count * 3 ) / 100;
     cx.strokeStyle = 'rgba(255,32,0,' + alpha + ')';
     cx.fillStyle = 'rgba(255,224,0,' + alpha + ')';
     for ( var i = 0, l = n.bits.length; i < l; i++ ) {
@@ -372,7 +378,8 @@ var NmyBllt = function( ex, ey ) {
   n.mv = function( nmy_pos ) {
     n.id =  nmy_pos;
     n[ n.action ]();
-    if ( !( utl.in_env( n.x, n.y, n.r ) ) ) {
+    if ( !( utl.in_env( n.x, n.y, n.r ) ) || 
+      plr.tail_ht( n.x, n.y, n.r ) ) {
       utl.remove_nmy( n.id );
     }
     // detect hit player or tail elements
