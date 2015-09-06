@@ -20,6 +20,9 @@ var Ins = function() {
       case ins.keys.right: case ins.keys.d:
         ins.keysDown.right = true;
         break;
+      case ins.keys.ntr:
+        ngn.go();
+        break;
     }
   }
   ins.kUp = function(evt) {

@@ -1,8 +1,10 @@
 function Nmy0() {
 
-  var n = this;
-  n.x = utl.any( env.w, 50 );
-  n.y = utl.any( env.h, 50 );
+  var n = this,
+    start_rnttn = utl.any( 2, 0 ),
+    start_end = utl.any( 2, 0 );
+  n.x = start_rnttn ? utl.any( env.w, 50 ) : ( start_end ? - 50 : env.h + 50 );
+  n.y = start_rnttn ? ( start_end ? - 50 : env.w + 50 ) : utl.any( env.h, 50 );
   n.a = utl.infany( 2 * pi );
   n.v = utl.infany( 1 ) + 1;
   n.r;
@@ -36,12 +38,24 @@ function Nmy0() {
   };
 
   n.wobble = function() {
-    n.x += utl.infanyeq( 0.2 );
-    n.y += utl.infanyeq( 0.2 );
-    if ( --n.countdown < 0) {
+    n.x += utl.infanyeq( 0.6 );
+    n.y += utl.infanyeq( 0.6 );
+    if ( --n.countdown <= 0) {
       n.action = 'follow';
       n.fill = 'black';
       n.stroke = 'white';
+    } else {
+      if ( plr.is_touching_end( n.x, n.y, n.r ) ) {
+        n.action = 'reversed';
+        plr.add_to_tail( n );
+        n.fill = 'white';
+        n.stroke = 'black';
+        scrbrd.pt();
+      } else {
+        if ( n.countdown < 100 ) {
+          n.fill = ( ~~( n.countdown / 5 ) % 2 ) ? 'white' : '#444444';
+        }
+      }
     }
   };
 
@@ -76,7 +90,7 @@ function Nmy0() {
   n.trail_wobble = function() {
     if ( plr.is_in_trail_bounds( n.x, n.y ) && plr.is_touching_trail( n.x, n.y, n.r ) ) {
       n.action = 'wobble';
-      n.countdown = 400;
+      n.countdown = 500;
       n.fill = 'white';
       n.stroke = 'black';
     }
@@ -127,9 +141,11 @@ var Nmy1 = function() {
   var n = this;
   Nmy0.call( n );
 
-  n.r = 6.5;
+  n.r = 7.5;
   n.shyness = 80 * n.v;
   n.clockwise = ( ( utl.any( 2, 0 ) ) - 0.5 );
+  n.av = 0.2;
+  n.spin = 0;
 
   n.circle = function() {
     var pdir = n.get_pdir();
@@ -162,7 +178,7 @@ var Nmy1 = function() {
         } else if ( !( utl.is_close( n.x, n.y, n.shyness * 1.2, env.x, env.y, 0 ) ) ) {
           n.action = 'follow';
         } else {
-          if ( !(frame % ~~( n.v * 100 ) ) ) {
+          if ( game_mode != 'end' && !(frame % ~~( n.v * 100 ) ) ) {
             nmys.push( new NmyBllt( n.x, n.y ) );
           }
         }
@@ -173,15 +189,7 @@ var Nmy1 = function() {
         }
         break;
       case 'wobble' :
-        if ( plr.is_touching_end( n.x, n.y, n.r ) ) {
-          n.action = 'reversed';
-          n.fill = 'white';
-          plr.add_to_tail( n );
-        } else {
-          if ( n.countdown < 80 ) {
-            n.fill = ( ~~( n.countdown / 8 ) % 2 ) ? 'white' : 'black';
-          }
-        }
+
         break;
       case 'reversed' :
           if ( !(frame % ~~( n.v * 100 ) ) ) {
@@ -204,51 +212,92 @@ var Nmy1 = function() {
       case 'circle' :
       case 'retreat' :
       case 'reversed' :
-        var sf = n.a + pi / 2 + 0.8 * Math.sin( frame * n.v / 12 ),
-          cf = n.a - pi / 2 - 0.8 * Math.cos( frame * n.v / 11 ),
-          adj = 0.06* pi,
-          sm = n.r * 0.2,
-          lg = n.r * 0.8;
-        if ( n.action === 'wobble' || n.action === 'reversed' ) {
-          sf = n.a + pi / 2;
-          cf = n.a - pi / 2;
+        var avf = frame / 200 + n.spin,
+        s1 = n.r * ( 0.8 + Math.abs( Math.sin( avf ) / 2 ) ),
+        s2 = n.r * ( 0.8 + Math.abs( Math.sin( avf + pi * 2 / 3 ) / 2 ) ),
+        s3 = n.r * ( 0.8 + Math.abs( Math.sin( avf + pi * 4 / 3 ) / 2 ) ),
+        r0 = n.r * 0.8,
+        use_ang = n.spin;
+      if ( n.action === 'wobble' || n.action === 'reversed' ) {
+        // inanimate
+      } else {
+        n.spin += n.av / 30;
+        if ( !~~( frame % ( 200 - Math.abs( n.av ) * 50 ) ) ) {
+          n.av = utl.infany( 0.75 ) + 0.5;
+          if ( ~~utl.any( 2, 0 ) ) {
+            n.av *= -1;
+          }
         }
-        var arms = [
-            n.npt_xy( sf - adj, n.r * 0.8 ),
-            n.npt_xy( sf + adj, n.r * 0.8 ),
-            n.npt_xy( n.a - adj, n.r * 0.2 ),
-            n.npt_xy( n.a + adj, n.r * 0.2 ),
-            n.npt_xy( cf - adj, n.r * 0.8 ),
-            n.npt_xy( cf + adj, n.r * 0.8 ),
-            n.npt_xy( n.a - adj, n.r * 0.2 ),
-            n.npt_xy( n.a + adj, n.r * 0.2 )
-          ],
-          pts = [ 
-            n.npt_xy( n.a, n.r * 0.6 ),
-            n.npt_xy( n.a + pi * 0.13, n.r),
-            n.npt_xy( n.a + pi * 0.22, n.r),
-            n.npt_xy( n.a + pi * 0.91, n.r),
-            n.npt_xy( n.a + pi * 1.09, n.r),
-            n.npt_xy( n.a + pi * 1.78, n.r),
-            n.npt_xy( n.a + pi * 1.87, n.r) 
-          ];
-
-        cx.lineWidth = 1;
-        cx.fillStyle = n.fill;
-        cx.strokeStyle = n.stroke;
-        cx.beginPath();
-        cx.moveTo( arms[ 0 ][ 0 ], arms[ 0 ][ 1 ] );
-        for ( var p = arms.length - 1; p > -1; p-- ) {
-          cx.lineTo( arms[ p ][ 0 ], arms[ p ][ 1 ] );
-        }
-        cx.fill();
-        cx.stroke();
-        cx.closePath();
-        cx.beginPath();
-        cx.moveTo( pts[ 0 ][ 0 ], pts[ 0 ][ 1 ] );
-        for ( var p = pts.length - 1; p > -1; p-- ) {
-          cx.lineTo( pts[ p ][ 0 ], pts[ p ][ 1 ] );
-        }
+      }
+      if ( n.action === 'reversed' ) {
+        use_ang = n.a;
+      }
+      var pts = [ 
+        n.npt_xy( use_ang + pi * 1 / 15, r0 ),
+        n.npt_xy( use_ang + pi * 3 / 15, r0 ),
+        n.npt_xy( use_ang + pi * 4 / 15, s1 ),
+        n.npt_xy( use_ang + pi * 10 / 15, s1 ),
+        n.npt_xy( use_ang + pi * 11 / 15, r0 ),
+        n.npt_xy( use_ang + pi * 13 / 15, r0 ),
+        n.npt_xy( use_ang + pi * 14 / 15, s2 ),
+        n.npt_xy( use_ang + pi * 20 / 15, s2 ),
+        n.npt_xy( use_ang + pi * 21 / 15, r0 ),
+        n.npt_xy( use_ang + pi * 23 / 15, r0 ),
+        n.npt_xy( use_ang + pi * 24 / 15, s3 ),
+        n.npt_xy( use_ang, s3 )
+      ];
+    
+      cx.fillStyle = n.fill;
+      cx.strokeStyle = n.stroke;
+      cx.beginPath();
+      cx.moveTo( pts[ 0 ][ 0 ], pts[ 0 ][ 1 ] );
+      for ( var p = pts.length - 1; p > -1; p-- ) {
+        cx.lineTo( pts[ p ][ 0 ], pts[ p ][ 1 ] );
+      }
+        // nmy3
+        // var sf = n.a + pi / 2 + 0.8 * Math.sin( frame * n.v / 12 ),
+        //   cf = n.a - pi / 2 - 0.8 * Math.cos( frame * n.v / 11 ),
+        //   adj = 0.06* pi,
+        //   sm = n.r * 0.2,
+        //   lg = n.r * 0.8;
+        // if ( n.action === 'wobble' || n.action === 'reversed' ) {
+        //   sf = n.a + pi / 2;
+        //   cf = n.a - pi / 2;
+        // }
+        // var arms = [
+        //     n.npt_xy( sf - adj, n.r * 0.8 ),
+        //     n.npt_xy( sf + adj, n.r * 0.8 ),
+        //     n.npt_xy( n.a - adj, n.r * 0.2 ),
+        //     n.npt_xy( n.a + adj, n.r * 0.2 ),
+        //     n.npt_xy( cf - adj, n.r * 0.8 ),
+        //     n.npt_xy( cf + adj, n.r * 0.8 ),
+        //     n.npt_xy( n.a - adj, n.r * 0.2 ),
+        //     n.npt_xy( n.a + adj, n.r * 0.2 )
+        //   ],
+        //   pts = [ 
+        //     n.npt_xy( n.a, n.r * 0.6 ),
+        //     n.npt_xy( n.a + pi * 0.13, n.r),
+        //     n.npt_xy( n.a + pi * 0.22, n.r),
+        //     n.npt_xy( n.a + pi * 0.91, n.r),
+        //     n.npt_xy( n.a + pi * 1.09, n.r),
+        //     n.npt_xy( n.a + pi * 1.78, n.r),
+        //     n.npt_xy( n.a + pi * 1.87, n.r) 
+        //   ];
+        // cx.fillStyle = n.fill;
+        // cx.strokeStyle = n.stroke;
+        // cx.beginPath();
+        // cx.moveTo( arms[ 0 ][ 0 ], arms[ 0 ][ 1 ] );
+        // for ( var p = arms.length - 1; p > -1; p-- ) {
+        //   cx.lineTo( arms[ p ][ 0 ], arms[ p ][ 1 ] );
+        // }
+        // cx.fill();
+        // cx.stroke();
+        // cx.closePath();
+        // cx.beginPath();
+        // cx.moveTo( pts[ 0 ][ 0 ], pts[ 0 ][ 1 ] );
+        // for ( var p = pts.length - 1; p > -1; p-- ) {
+        //   cx.lineTo( pts[ p ][ 0 ], pts[ p ][ 1 ] );
+        // }
         cx.fill();
         cx.stroke();
         cx.closePath();
@@ -274,15 +323,7 @@ var Nmy2 = function() {
     n[ n.action ]();
     switch( n.action ) {
       case 'wobble' :
-        if ( plr.is_touching_end( n.x, n.y, n.r ) ) {
-          n.action = 'reversed';
-          n.fill = 'white';
-          plr.add_to_tail( n );
-        } else {
-          if ( n.countdown < 80 ) {
-            n.fill = ( ~~( n.countdown / 8 ) % 2 ) ? 'white' : 'black';
-          }
-        }
+
         break;
       case 'reversed' :
           n.a += rgd.ang.vel;
@@ -302,7 +343,6 @@ var Nmy2 = function() {
       case 'follow':
       case 'wobble':
       case 'reversed':
-        cx.lineWidth = 1;
         cx.fillStyle = n.fill;
         cx.strokeStyle = n.stroke;
 
@@ -359,7 +399,7 @@ var Nmy2 = function() {
   }
 }
 
-var NmyBllt = function( ex, ey ) {
+var Bllt = function( ex, ey ) {
   var n = this;
   Nmy0.call( n );
   n.x = ex;
@@ -367,30 +407,17 @@ var NmyBllt = function( ex, ey ) {
   n.v = 3;
   n.r = 3;
   n.action = 'translate';
-  n.a = n.get_pdir() + pi;
-  n.fill = 'yellow';
-
-  // n.translate = function() {
-  //   n.translate();
-  //   //HIT TEST NMYS
-  // };
-
-  n.mv = function( nmy_pos ) {
-    n.id =  nmy_pos;
-    n[ n.action ]();
-    if ( !( utl.in_env( n.x, n.y, n.r ) ) || 
-      plr.tail_ht( n.x, n.y, n.r ) ) {
-      utl.remove_nmy( n.id );
-    }
-    // detect hit player or tail elements
-  };
 
   n.drw = function( ex, ey ) {
-    cx.fillStyle = 'blue';
-    cx.lineWidth = 1;
+    var pt_tail = n.npt_xy( n.a + pi, n.r * 2.25 ),
+      pt_2_a = n.a + ( 21 * pi / 16),
+      pt_2 = n.npt_xy ( pt_2_a, n.r );
+    cx.fillStyle = n.fill;
     cx.beginPath();
-    cx.lineTo( n.x - ex + n.r, n.y - ey);
-    cx.arc( n.x - ex, n.y - ey, n.r, 0, 2 * pi );
+    cx.moveTo( pt_tail[ 0 ], pt_tail[ 1 ] );
+    cx.lineTo( pt_2[ 0 ], pt_2[ 1 ] );
+    cx.arc( n.x - ex, n.y - ey, n.r, pt_2_a, pt_2_a + 11 * pi / 8 );
+    cx.lineTo( pt_tail[ 0 ], pt_tail[ 1 ] );
     cx.fillStyle = n.fill;
     cx.strokeStyle = n.stroke;
     cx.fill();
@@ -400,15 +427,28 @@ var NmyBllt = function( ex, ey ) {
 
 }
 
+var NmyBllt = function( ex, ey ) {
+  var n = this;
+  Bllt.call( n, ex, ey );
+  n.a = n.get_pdir() + pi;
+
+  n.mv = function( nmy_pos ) {
+    n.id =  nmy_pos;
+    n[ n.action ]();
+    if ( !( utl.in_env( n.x, n.y, n.r ) ) || 
+      plr.tail_ht( n.x, n.y, n.r ) ) {
+      utl.remove_nmy( n.id );
+    }
+  };
+
+}
+
 var PlrBllt = function( ex, ey ) {
   var n = this;
-  Nmy0.call( n );
-  n.x = ex;
-  n.y = ey;
+  Bllt.call( n, ex, ey );
+  n.fill = 'white';
+  n.stroke = 'black';
   n.v = 5;
-  n.r = 3;
-  n.action = 'translate';
-  n.fill = 'blue';
 
   n.get_edir = function() {
     var target = utl.get_first_close_nmy( n.x, n.y );
@@ -416,12 +456,7 @@ var PlrBllt = function( ex, ey ) {
       return utl.angle_between( n.x, n.y, target.x, target.y );
     }
   };
-
   n.a = n.get_edir() + pi;
-  // n.translate = function() {
-  //   n.translate();
-  //   //HIT TEST NMYS
-  // };
 
   n.mv = function( nmy_pos ) {
     n.id =  nmy_pos;
@@ -431,17 +466,5 @@ var PlrBllt = function( ex, ey ) {
     }
   };
 
-  n.drw = function( ex, ey ) {
-    cx.fillStyle = 'yellow';
-    cx.lineWidth = 1;
-    cx.beginPath();
-    cx.lineTo( n.x - ex + n.r, n.y - ey);
-    cx.arc( n.x - ex, n.y - ey, n.r, 0, 2 * pi );
-    cx.fillStyle = n.fill;
-    cx.strokeStyle = n.stroke;
-    cx.fill();
-    cx.stroke();
-    cx.closePath();
-  };
 }
 

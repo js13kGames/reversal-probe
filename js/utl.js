@@ -27,9 +27,6 @@ var Utl = function() {
       if ( p > l ) { return l; }
       return p;
     },
-    cv_log: function( mess ) {
-      log = mess;
-    },
     any: function( rng, pddg ) {
       return ( ~~( Math.random() * ( rng + pddg* 2 )) - pddg );
     },
@@ -114,8 +111,8 @@ var Utl = function() {
         var nmy = nmys[ n ];
         if ( [ 'follow', 'circle', 'retreat' ].indexOf( nmy.action ) > -1 && 
           utl.is_close( nmy.x, nmy.y, nmy.r, bx, by, br ) ) {
-          console.log('dead!');
           nmy.death_init();
+          scrbrd.pt();
           return true;
         }
       }

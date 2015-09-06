@@ -1,23 +1,7 @@
 var cv = document.getElementById('cv'),
   cx = cv.getContext('2d'),
   pi = Math.PI,
-  rgd = {
-    lin: {
-      vx: 0,
-      vy: 0,
-      x: 100,
-      y: 100
-    },
-    ang: {
-      vel: 0,
-      rad: Math.random()*2*pi
-    },
-    ply: {
-      ang: 0,
-      rot: 0,
-      r: 20
-    }
-  },
+  rgd = {},
   toa,
   tof,
   con = 8,
@@ -35,8 +19,7 @@ var cv = document.getElementById('cv'),
   },
   frame = 0,
   lastframe = 0,
-  log = 'Log message',
-  game_mode = 'start',
+  game_mode = 'init',
   uniqr = Math.random(),
   uniqg = Math.random(),
   uniqb = Math.random(),
@@ -53,4 +36,5 @@ var cv = document.getElementById('cv'),
   paused = 0;
 
   nmys = [];
+  bgs = [];
 

@@ -5,10 +5,7 @@ var Bg = function( dist ) {
     // r = Math.round(820 / d),
     r = 190,
     col_step = Math.round(d/2),
-    c = 'rgb(' + ( 40 + ~~( col_step * env.bg_col[ 0 ] ) ) +
-      ',' + ( 38 + ~~( col_step * env.bg_col[ 1 ] ) ) +
-      ',' + ( 35 + ~~( col_step * env.bg_col[ 2 ] ) ) + ')',
-      //',35)',
+    c = '',
     pts = [],
     angv = Math.random() - 0.5,
     a = 0;
@@ -43,7 +40,6 @@ var Bg = function( dist ) {
     }
   }
 }
-var bgs = [];
 for (var i = 0, l = settings.amt_bg; i < l; i++) {
   bgs.push( new Bg( i + 50 ) );
 }
