@@ -41,8 +41,9 @@ var Ngn = function() {
         nmys[ i ].mv( i );
       }
     }
-    if ( nmys.length < 20 + frame / 5000 && !(frame % 200 ) ) {
-      nmys.push( utl.any( 2, 0 ) ? new Nmy2() : new Nmy1() );
+    if ( nmys.length < 15 + frame / 5000 && !( frame % ~~( 200 - ( 1 / frame / frame / frame ) ) ) ) {
+      var nnum = utl.any( 3, 0 ) + 1;
+      nmys.push( new window[ 'Nmy' + nnum ]() );
     }
     if ( game_mode != 'start' ) { return; };
     if ( plr ) { plr.mv(); };

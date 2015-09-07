@@ -27,8 +27,7 @@ var Bg = function( dist ) {
         ',' + ( 28 + ~~( col_step * env.bg_col[ 1 ] ) ) +
         ',' + ( 25 + ~~( col_step * env.bg_col[ 2 ] ) ) + ')',
       cx.fillStyle = c;
-      cx.moveTo( first[ 0 ], first[ 1 ]);
-      cx.beginPath();
+      utl.shape_start( first );
       for ( var p = pts.length - 1; p > -1; p--) {
         var sxy = utl.get_xy_course ( a + pts[ p ][ 0 ], pts[ p ][ 1 ], sx, sy )
         cx.lineTo( sxy[ 0 ], sxy[ 1 ] );

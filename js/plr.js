@@ -4,7 +4,7 @@ var Plr = function() {
     trail_bounds = [ env.w, env.w, 0, 0 ];
     exy = [ env.x, env.y ],
     tail = [ ],
-    tail_end = [ envw,envw ],
+    tail_end = exy,
     r = 10,
     fill = 'white',
     stroke = 'black';
@@ -138,11 +138,9 @@ var Plr = function() {
         if ( Math.abs( trail[ i ][ 0 ] - curx ) < 100 &&
           ( Math.abs( trail[ i ][ 0 ] - curx ) > 3 ||
           Math.abs( trail[ i ][ 1 ] - cury ) > 3 ) ) {
-          cx.beginPath();
-
           cx.strokeStyle = 'rgba(255,255,255,' + ( i / 120 ) + ')';
           cx.lineWidth = i / 30;
-          cx.moveTo( curx - env.scrx, cury - env.scry );
+          utl.shape_start( [ curx - env.scrx, cury - env.scry ] );
           cx.lineTo( trail[ i ][ 0 ] - env.scrx,
             trail[ i ][ 1 ] - env.scry );
           cx.stroke();
@@ -203,9 +201,7 @@ var Plr = function() {
       tept = utl.get_xy( ta + pi * 11.5 / 6, tr, xy[ 0 ], xy[ 1 ] );
       cx.arc( tept[0], tept[1], tr / 3.5, ta + pi * 8.5 / 6, ta + pi * 14.5 / 6 );
       tail_end = [ xy[ 0 ] + env.scrx, xy[ 1 ] + env.scry ];
-      cx.fill();
-      cx.stroke();
-      cx.closePath();
+      utl.shape_stop();
 
       //plr
       xy = utl.get_xy (rad, con, x, y);
@@ -223,44 +219,34 @@ var Plr = function() {
           cx.moveTo(fx + fz, fy);
           cx.arc( fx, fy, fz, 0, 2*pi );
         }
-        cx.stroke();
-        cx.closePath();
+        utl.shape_stop( false );
       }
       //exhaust
       var ptt1 = utl.get_xy(ang + pi * 28 / 32, r * 1.1, xy[ 0 ], xy[ 1 ] );
       var ptt2 = utl.get_xy(ang + pi * 36 / 32, r * 1.1, xy[ 0 ], xy[ 1 ] );
-      cx.beginPath();
-      cx.moveTo( xy[ 0 ], xy[ 1 ] );
-      cx.lineTo( ptt1[ 0 ], ptt1[ 1 ] );
+      utl.shape_start( xy );
+      utl.ln_2_pt( ptt1 );
       cx.arc( xy[ 0 ], xy[ 1 ], r * 1.1, ang + pi * 29 / 32, ang + pi * 35 / 32 );
-      cx.lineTo( xy[ 0 ], xy[ 1 ] );
+      utl.ln_2_pt( xy );
       cx.strokeStyle = stroke;
       cx.fillStyle = '#bbb';
-      cx.fill();
-      cx.stroke();
-      cx.closePath();
+      utl.shape_stop();
       //main
-      cx.beginPath();
       cx.fillStyle = fill;
       var ptt3 = utl.get_xy(ang + pi * 39 / 32, r, xy[ 0 ], xy[ 1 ] );
       var ptt4 = utl.get_xy(ang + pi * 54 / 32, r * .7, xy[ 0 ], xy[ 1 ] );
       var ptt5 = utl.get_xy(ang + pi * 74 / 32, r * .7, xy[ 0 ], xy[ 1 ] );
       var ptt6 = utl.get_xy(ang + pi * 89 / 32, r, xy[ 0 ], xy[ 1 ] );
       var ptt7 = utl.get_xy(ang, r * .5, xy[ 0 ], xy[ 1 ] );
-      cx.moveTo( ptt3[ 0 ],ptt3[ 1 ] );
-      cx.lineTo( ptt4[ 0 ],ptt4[ 1 ] );
+      utl.shape_start( ptt3 );
+      utl.ln_2_pt( ptt4 );
       cx.arc( ptt7[ 0 ], ptt7[ 1 ], r * .58, ang - pi / 2, ang + pi / 2 );
-      cx.lineTo( ptt5[ 0 ],ptt5[ 1 ] );
-      cx.lineTo( ptt6[ 0 ],ptt6[ 1 ] );
-      cx.lineTo( ptt3[ 0 ],ptt3[ 1 ] );
-      cx.fill();
-      cx.stroke();
-
-      cx.closePath();
+      utl.ln_2_pt( ptt5 );
+      utl.ln_2_pt( ptt6 );
+      utl.ln_2_pt( ptt3 );
+      utl.shape_stop();
       //window
-      cx.beginPath();
-
-      cx.moveTo( ptt7[ 0 ] + r * .3, ptt7[ 1 ] );
+      utl.shape_start( ptt7[ 0 ] + r * .3, ptt7[ 1 ] );
       cx.arc( ptt7[ 0 ], ptt7[ 1 ], r * .3, 0, pi * 2 );
       cx.stroke();
 
@@ -270,18 +256,16 @@ var Plr = function() {
       var ptt10 = utl.get_xy(ang + pi * 43 / 32, r * 1, xy[ 0 ], xy[ 1 ] );
       var ptt11 = utl.get_xy(ang + pi * 21 / 32, r * 1, xy[ 0 ], xy[ 1 ] );
       cx.moveTo( ptt8[ 0 ], ptt8[ 1 ] );
-      cx.lineTo( ptt9[ 0 ], ptt9[ 1 ] );
-      cx.lineTo( ptt11[ 0 ], ptt11[ 1 ] );
-      cx.lineTo( ptt6[ 0 ], ptt6[ 1 ] );      
-      cx.lineTo( ptt3[ 0 ], ptt3[ 1 ] );
-      cx.lineTo( ptt10[ 0 ], ptt10[ 1 ] );
-      cx.lineTo( ptt8[ 0 ], ptt8[ 1 ] );
-
-      cx.stroke();
+      utl.ln_2_pt( ptt9 );
+      utl.ln_2_pt( ptt11 );
+      utl.ln_2_pt( ptt6 );
+      utl.ln_2_pt( ptt3 );
+      utl.ln_2_pt( ptt10 );
+      utl.ln_2_pt( ptt8 );
       cx.fillStyle = '#ddd';
-      cx.fill();
-      cx.closePath();
+      utl.shape_stop();
 
+      //sensor
       var cn = utl.get_first_close_nmy( env.x, env.y ),
         cna = 0,
         eyerad = r * .12,
@@ -297,9 +281,7 @@ var Plr = function() {
       cx.beginPath();
       cx.arc( ptt12[ 0 ], ptt12[ 1 ], eyerad, 0, pi * 2 );
       cx.fillStyle = '#206040';
-      cx.fill();
-      cx.stroke();
-      cx.closePath();
+      utl.shape_stop();
     }
   }
 }

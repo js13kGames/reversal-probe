@@ -61,9 +61,9 @@ var Utl = function() {
     },
     is_showing: function( x, y, r ) {
       var margin = r * 1.5;
-      return ( ( x > env.scrx - margin ) && 
-        ( x < env.scrx + cvw + margin ) && 
-        ( y > env.scry - margin ) && 
+      return ( ( x > env.scrx - margin ) &&
+        ( x < env.scrx + cvw + margin ) &&
+        ( y > env.scry - margin ) &&
         ( y < env.scry + cvh + margin ) );
     },
     angle_between: function( x1, y1, x2, y2 ) {
@@ -99,9 +99,9 @@ var Utl = function() {
       for ( var n = 0, l = nmys.length; n < l; n++ ) {
         var nmy = nmys[ n ];
         if ( Math.abs( nmy.x - x ) < 300 && Math.abs ( nmy.y - y ) < 300 ) {
-          if ( [ 'follow', 'circle', 'retreat' ].indexOf( nmy.action ) > -1 ) {
+          if ( [ 'follow', 'circle', 'retreat', 'randomy' ].indexOf( nmy.action ) > -1 ) {
             return nmy;
-          } 
+          }
         }
       }
       return;
@@ -109,13 +109,32 @@ var Utl = function() {
     ht_nmys: function( bx, by, br ) {
       for ( var n = 0, l = nmys.length; n < l; n++ ) {
         var nmy = nmys[ n ];
-        if ( [ 'follow', 'circle', 'retreat' ].indexOf( nmy.action ) > -1 && 
+        if ( [ 'follow', 'circle', 'retreat', 'randomy' ].indexOf( nmy.action ) > -1 &&
           utl.is_close( nmy.x, nmy.y, nmy.r, bx, by, br ) ) {
           nmy.death_init();
           scrbrd.pt();
           return true;
         }
       }
+    },
+    shape_start: function( pt ) {
+      cx.beginPath();
+      cx.moveTo( pt[ 0 ], pt [ 1 ] );
+    },
+    shape_stop: function( fll = true ) {
+      if ( fll ) {
+        cx.fill();
+      }
+      cx.stroke();
+      cx.closePath();
+    },
+    ln_2_pt: function( pt ) {
+      cx.lineTo( pt[ 0 ], pt[ 1 ] );
+    },
+    lns_frm_arr: function( arr ) {
+      for ( var i = arr.length - 1; i >= 0; i-- ) {
+        utl.ln_2_pt( arr[ i ] );
+      };
     }
   };
 };
