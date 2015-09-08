@@ -121,7 +121,8 @@ var Utl = function() {
       cx.beginPath();
       cx.moveTo( pt[ 0 ], pt [ 1 ] );
     },
-    shape_stop: function( fll = true ) {
+    shape_stop: function( fll ) {
+      fll = fll || true;
       if ( fll ) {
         cx.fill();
       }

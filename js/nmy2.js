@@ -21,15 +21,18 @@ var Nmy2 = function() {
     }
   };
 
-  n.drw = function() {
+  n.drw = function( ex, ey ) {
 
     switch ( n.action ) {
 
       case 'follow':
       case 'wobble':
       case 'reversed':
-        cx.fillStyle = n.fill;
-        cx.strokeStyle = n.stroke;
+
+        if ( n.action === 'wobble' ) {
+          n.drw_tmr( ex, ey, n.countdown / 500 );
+        }
+        n.rst_cl();
 
         var a1 = n.a + pi / 3 + 0.4 * Math.sin( frame * n.v / 10 ),
           a2 = n.a - pi / 3 - 0.4 * Math.cos( frame * n.v / 11 );

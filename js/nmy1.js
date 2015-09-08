@@ -39,7 +39,7 @@ var Nmy1 = function() {
         } else if ( !( utl.is_close( n.x, n.y, n.shyness * 1.2, env.x, env.y, 0 ) ) ) {
           n.action = 'follow';
         } else {
-          if ( game_mode != 'end' && !(frame % ~~( n.v * 100 ) ) ) {
+          if ( game_mode != 'end' && !( mvs % ~~( n.v * 100 ) ) ) {
             nmys.push( new NmyBllt( n.x, n.y ) );
           }
         }
@@ -50,7 +50,7 @@ var Nmy1 = function() {
         }
         break;
       case 'reversed' :
-          if ( !(frame % ~~( n.v * 100 ) ) ) {
+          if ( !(mvs % ~~( n.v * 100 ) ) ) {
             nmys.push( new PlrBllt( n.x, n.y ) );
           }
           n.a += rgd.ang.vel;
@@ -76,6 +76,9 @@ var Nmy1 = function() {
         s3 = n.r * ( 0.8 + Math.abs( Math.sin( avf + pi * 4 / 3 ) / 2 ) ),
         r0 = n.r * 0.8,
         use_ang = n.spin;
+        if ( n.action === 'wobble' ) {
+          n.drw_tmr( ex, ey, n.countdown / 500 );
+        }
 
         if ( n.action === 'wobble' || n.action === 'reversed' ) {
           // inanimate
@@ -105,7 +108,6 @@ var Nmy1 = function() {
           n.npt_xy( use_ang + pi * 24 / 15, s3 ),
           n.npt_xy( use_ang, s3 )
         ];
-
         cx.fillStyle = n.fill;
         cx.strokeStyle = n.stroke;
         utl.shape_start( pts[ 0 ] );

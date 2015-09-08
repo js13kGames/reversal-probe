@@ -19,6 +19,11 @@ function Nmy0() {
   n.bits = [];
   n.bits_count = 0;
 
+  n.rst_cl = function() {
+    cx.strokeStyle = n.stroke;
+    cx.fillStyle = n.fill;
+  }
+
   n.get_pdir = function() {
     return utl.angle_between( n.x, n.y, env.x, env.y );
   };
@@ -38,23 +43,15 @@ function Nmy0() {
   };
 
   n.wobble = function() {
-    n.x += utl.infanyeq( 0.4 );
-    n.y += utl.infanyeq( 0.4 );
-    if ( --n.countdown <= 0) {
+    if ( --n.countdown <= 0 ) {
       n.action = 'follow';
-      n.fill = 'black';
-      n.stroke = 'white';
     } else {
-      if ( plr.is_touching_end( n.x, n.y, n.r ) ) {
+      if ( plr.is_touching_whole( n.x, n.y, n.r ) ) {
         n.action = 'reversed';
         plr.add_to_tail( n );
         n.fill = 'white';
         n.stroke = 'black';
         scrbrd.pt();
-      } else {
-        if ( n.countdown < 100 ) {
-          n.fill = ( ~~( n.countdown / 5 ) % 2 ) ? 'white' : '#444444';
-        }
       }
     }
   };
@@ -91,8 +88,6 @@ function Nmy0() {
     if ( plr.is_in_trail_bounds( n.x, n.y ) && plr.is_touching_trail( n.x, n.y, n.r ) ) {
       n.action = 'wobble';
       n.countdown = 500;
-      n.fill = 'white';
-      n.stroke = 'black';
     }
   };
 
@@ -114,6 +109,18 @@ function Nmy0() {
     var alpha = ( 100 - n.bits_count * 3 ) / 100;
     cx.strokeStyle = 'rgba(255,32,0,' + alpha + ')';
     cx.fillStyle = 'rgba(255,224,0,' + alpha + ')';
+  }
+
+  n.drw_tmr = function( ex, ey, prcnt, fll ) {
+    cx.fillStyle = fll || '#309060';
+    var pt0 = [ n.x - ex, n.y - ey ];
+    var pt1 = n.npt_xy( pi * 3 / 2, 4 / 3 * n.r );
+    utl.shape_start( pt0 );
+    utl.ln_2_pt( pt1 );
+    cx.arc( pt0[ 0 ], pt0[ 1 ], n.r * 4 / 3, pi * 3 / 2, pi * 3 / 2 + pi * 2 * prcnt );
+    utl.ln_2_pt( pt0 );
+    utl.shape_stop();
+    n.rst_cl();
   }
 
   n.drw_death = function() {

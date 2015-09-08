@@ -63,7 +63,7 @@ var PlrBllt = function( ex, ey ) {
 
 }
 
-var NmyBmb = function( ex, ey ) {
+var Bmb = function( ex, ey ) {
   var n = this;
   Bllt.call( n, ex, ey );
   n.action = 'tick';
@@ -71,11 +71,42 @@ var NmyBmb = function( ex, ey ) {
   n.r = 5;
   n.v = 0;
 
+
   n.tick = function() {
     if ( n.countdown-- < 1 ) {
       n.death_init();
     }
   }
+
+  n.drw = function( ex, ey ) {
+    switch( n.action ) {
+      case 'tick' :
+        var ptr = [ n.x - ex + n.r, n.y - ey ],
+          pt0 = [ n.x - ex, n.y - ey ],
+          prcnt = n.countdown / 240;
+        n.drw_tmr( ex, ey, prcnt, n.fill );
+        utl.shape_start( ptr );
+        cx.arc( pt0[ 0 ], pt0[ 1 ], n.r, 0, pi * 2 );
+        utl.shape_stop();
+        break;
+      case 'death' :
+        n.death_col();
+        var pt0 = [ n.x - ex, n.y - ey ];
+        var ptr = [ n.x - ex + n.r, n.y - ey ];
+        utl.shape_start( ptr );
+        cx.arc( pt0[ 0 ], pt0[ 1 ], n.r, 0, 2 * pi );
+        utl.shape_stop();
+        n.drw_death();
+        break;
+    }
+  }
+
+}
+
+var NmyBmb = function( ex, ey ) {
+  var n = this;
+  Bmb.call( n, ex, ey );
+  n.dmgd_plr = false;
 
   n.mv = function( nmy_pos ) {
     n.id =  nmy_pos;
@@ -93,35 +124,29 @@ var NmyBmb = function( ex, ey ) {
     }
   };
 
-  n.drw = function( ex, ey ) {
-    switch( n.action ) {
-      case 'tick' :
-        cx.fillStyle = n.fill;
-        cx.strokeStyle = n.stroke;
-        var pt0 = [ n.x - ex, n.y - ey ];
-        var ptr = [ n.x - ex + n.r, n.y - ey ];
-        var pt1 = n.npt_xy( pi * 3 / 2, n.r );
-        utl.shape_start( pt0 );
-        utl.ln_2_pt( pt1 );
-        cx.arc( pt0[ 0 ], pt0[ 1 ], n.r * 1.5, pi * 3 / 2, pi * 3 / 2 + pi * 2 * n.countdown / 240 );
-        utl.ln_2_pt( pt0 );
-        utl.shape_stop();
-        utl.shape_start( ptr );
-        cx.arc( pt0[ 0 ], pt0[ 1 ], n.r, 0, pi * 2 );
-        utl.shape_stop();
-        break;
+}
+
+var PlrBmb = function( ex, ey ) {
+  var n = this;
+  Bmb.call( n, ex, ey );
+  n.fill = 'white';
+  n.stroke = 'black';
+
+  n.mv = function( nmy_pos ) {
+    n.id =  nmy_pos;
+    n[ n.action ]();
+    if ( !( utl.in_env( n.x, n.y, n.r ) ) || utl.ht_nmys( n.x, n.y, n.r ) ) {
+      n.death_init();
+    }
+    switch ( n.action ) {
       case 'death' :
-        n.death_col();
-        var pt0 = [ n.x - ex, n.y - ey ];
-        var ptr = [ n.x - ex + n.r, n.y - ey ];
-        // also draw some kind of circular thing
-        utl.shape_start( ptr );
-        cx.arc( pt0[ 0 ], pt0[ 1 ], n.r, 0, 2 * pi );
-        utl.shape_stop();
-        n.drw_death();
+        n.r = n.bits_count * 1.5;
+        if ( !( n.bits.length ) || n.bits_count > 32 ) {
+          utl.remove_nmy( n.id );
+        }
         break;
     }
-  }
+  };
 
 }
 

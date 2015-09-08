@@ -35,14 +35,15 @@ var Plr = function() {
     is_touching_trail: function( nmyx, nmyy, nmyr ) {
       if ( game_mode === 'end' ) { return; };
       for ( var t = trail.length - 1; t > 0; t-- ) {
-        if ( utl.is_close_course( nmyx, nmyy, nmyr, trail[ t ][ 0 ], trail[ t ][ 1 ], -1 ) ) {
+        if ( utl.is_close_course( nmyx, nmyy, nmyr, trail[ t ][ 0 ], trail[ t ][ 1 ], 0 ) ) {
           return true;
         }
       }
       return false;
     },
     add_to_tail: function( nmy ) {
-      con += 6;
+      con += 6.5;
+      console.log(con);
       nmy.fill = fill;
       nmy.stroke = stroke;
       tail.push( nmy );
@@ -55,7 +56,8 @@ var Plr = function() {
           if ( l ) {
             tail[ 0 ].death_init();
             tail.splice( t, 1 );
-            con -= 6;
+            con -= 6.5;
+            console.log(con);
           } else {
             for ( var n = 0; n < 12; n++ ) {
               var nmy = new Nmy2();
@@ -85,34 +87,72 @@ var Plr = function() {
       }
       return false;
     },
-    is_touching_end: function( nmyx, nmyy, nmyr ) {
-      if( utl.is_close( nmyx, nmyy, nmyr, tail_end[ 0 ], tail_end[ 1 ], 6.5 ) ) { return true };
+    is_touching_whole: function( nmyx, nmyy, nmyr ) {
+      if ( utl.is_close( nmyx, nmyy, nmyr, env.x, env.y, r ) ) { return true; };
+      if ( utl.is_close( nmyx, nmyy, nmyr, tail_end[ 0 ], tail_end[ 1 ], 6.5 ) ) { return true };
+      var l = tail.length;
+      for ( var t = 0; t < l; t++ ) {
+        var n = tail[ t ];
+        if ( utl.is_close_course( nmyx, nmyy, nmyr, n.x, n.y, n.r) &&
+          utl.is_close( nmyx, nmyy, nmyr, n.x, n.y, n.r ) ) {
+          return true;
+        }
+      }
       // also test plr and tail nmys
     },
     mv: function() {
+      // thrusting
       if ( game_mode != 'start' ) { return; };
-      if ( ins.keysDown.left ) { rgd.ply.rot -= 0.01; };
-      if ( ins.keysDown.right ) { rgd.ply.rot += 0.01; };
+      if ( ins.keysDown.left ) { rgd.ply.rot -= .01; };
+      if ( ins.keysDown.right ) { rgd.ply.rot += .01; };
       if ( ins.keysDown.up ) {
         var sqt = Math.sqrt( con );
         var a = rgd.ply.ang;
         rgd.ang.vel -= Math.cos( a + pi/2 - rgd.ang.rad ) / 200 / sqt;
-        axy = utl.get_xy( a,0.2-sqt/100,0,0 );
+        axy = utl.get_xy( a,.2-sqt/100,0,0 );
         rgd.lin.vx += axy[ 0 ];
         rgd.lin.vy += axy[ 1 ];
       };
+      // movement
       env.x = utl.bounds( env.x + rgd.lin.vx, env.w );
-      // gravity version: env.y = utl.bounds( env.y + ( rgd.lin.vy += 0.02 ), env.h );
+      // gravity version: env.y = utl.bounds( env.y + ( rgd.lin.vy += .02 ), env.h );
       env.y = utl.bounds( env.y + ( rgd.lin.vy ), env.h );
       env.scrx = env.x * ( env.w - cvw ) / env.w;
       env.scry = env.y * ( env.h - cvh ) / env.h;
       rgd.ang.rad += rgd.ang.vel;
       rgd.ply.ang += rgd.ply.rot;
-      rgd.ply.rot *= 0.94;
-      rgd.ang.vel *= 0.996;
-      rgd.lin.vx *= 0.99;
-      rgd.lin.vy *= 0.99;
-      if ( !( frame % 3 ) ) {
+      // friction
+      rgd.ply.rot *= .94;
+      rgd.ang.vel *= .996;
+      rgd.lin.vx *= .99;
+      rgd.lin.vy *= .99;
+      // todo: update tail nmys and tail end
+      var oxy = utl.plr_to_scr (env.x, env.y),
+        x = oxy[ 0 ],
+        y = oxy[ 1 ],
+        rad = rgd.ang.rad,
+        ang = rgd.ply.ang;
+
+      var dist = -13;
+      var xy = utl.get_xy ( rad, con, x, y );
+      for ( var t = 0, l = tail.length; t < l; t++ ) {
+        if ( tail[ t ] ) {
+          
+          xy = utl.get_xy (rad, dist, xy[0], xy[1]);
+          // elasticy - leave for now
+          // old = lasttows[ t ] || xy;
+          // xy[0] = xy[0] - (xy[0] - old[0]) / 16 * t;
+          // xy[1] = xy[1] - (xy[1] - old[1]) / 16 * t;
+          // lasttows[ t ] = xy;
+          tail[ t ].x = xy[ 0 ] + env.scrx;
+          tail[ t ].y = xy[ 1 ] + env.scry;
+        }
+      }
+      xy = utl.get_xy ( rad, con * -1, x, y );
+
+      tail_end = [ xy[ 0 ] + env.scrx, xy[ 1 ] + env.scry ];
+      // update trail and bounds
+      if ( !( mvs % 3 ) ) {
         var trail_rm = trail.shift();
         if ( trail_rm[ 0 ] <= trail_bounds[ 0 ] ||
           trail_rm[ 0 ] >= trail_bounds[ 2 ] ||
@@ -127,14 +167,15 @@ var Plr = function() {
     drw: function() {
       if ( game_mode === 'end' || game_mode === 'init' ) { return; };
 
-      // trail then tail then tail_end then plr
-
       //trail
-      cx.moveTo( trail[ 0 ][ 0 ] - env.scrx, trail[ 0 ][ 1 ] - env.scry );
+      var poxy = utl.plr_to_scr (env.x, env.y);
+      var pxy = utl.get_xy ( rad, con, poxy[ 0 ], poxy[ 1 ] );
+      utl.shape_start( pxy );
+      utl.ln_2_pt( trail[ 0 ] );
       var curx = trail[ 0 ][ 0 ];
       var cury = trail[ 0 ][ 1 ];
 
-      for ( var i = 0, l = trail.length; i < l; i++) {
+      for ( var i = 0, l = trail.length; i < l; i++ ) {
         if ( Math.abs( trail[ i ][ 0 ] - curx ) < 100 &&
           ( Math.abs( trail[ i ][ 0 ] - curx ) > 3 ||
           Math.abs( trail[ i ][ 1 ] - cury ) > 3 ) ) {
@@ -145,7 +186,7 @@ var Plr = function() {
             trail[ i ][ 1 ] - env.scry );
           cx.stroke();
 
-          cx.strokeStyle = 'rgba(255,255,255,' + ( i / 300 ) + ')';
+          cx.strokeStyle = 'rgba(175,255,215,' + ( i / 240 ) + ')';
           cx.lineWidth = i / 15;
           cx.moveTo( curx - env.scrx, cury - env.scry );
           cx.lineTo( trail[ i ][ 0 ] - env.scrx,
@@ -158,54 +199,39 @@ var Plr = function() {
         }
       }
 
-      cx.lineWidth = 0.5;
+      cx.lineWidth = .5;
 
-      //tail
-      var oxy = utl.plr_to_scr (env.x, env.y),
-        x = oxy[ 0 ],
-        y = oxy[ 1 ],
-        rad = rgd.ang.rad,
-        ang = rgd.ply.ang;
+      //tail ( nmys drw does this )
 
-      var xy = utl.get_xy (rad, con, x, y);
-
-      // set tail nmys x and y
-      for ( var t = 0, l = tail.length; t < l; t++ ) {
-        if ( tail[ t ] ) {
-          var dist = ( t === 0 ? -16 : -13 );
-          xy = utl.get_xy (rad, dist, xy[0], xy[1]);
-          // elasticy - leave for now
-          // old = lasttows[ t ] || xy;
-          // xy[0] = xy[0] - (xy[0] - old[0]) / 16 * t;
-          // xy[1] = xy[1] - (xy[1] - old[1]) / 16 * t;
-          // lasttows[ t ] = xy;
-          tail[ t ].x = xy[ 0 ] + env.scrx;
-          tail[ t ].y = xy[ 1 ] + env.scry;
-        }
-      }
-      // draw tailend
+      // tailend
       cx.beginPath();
       cx.fillStyle = fill;
       cx.strokeStyle = stroke;
-      xy = utl.get_xy ( rad, -16, xy[0], xy[1] );
 
-      var ta = rad + pi / 12,
-        tr = 6;
-      cx.arc( xy[0], xy[1], tr, ta, ta + pi * 3 / 6 );
-      var tept = utl.get_xy( ta + pi * 3.5 / 6, tr, xy[ 0 ], xy[ 1 ] );
-      cx.arc( tept[0], tept[1], tr / 3.5, ta + pi * 0.5 / 6, ta + pi * 6.5 / 6 );
-      cx.arc( xy[0], xy[1], tr, ta + pi * 4 / 6, ta + pi * 7 / 6 );
-      tept = utl.get_xy( ta + pi * 7.5 / 6, tr, xy[ 0 ], xy[ 1 ] );
-      cx.arc( tept[0], tept[1], tr / 3.5, ta + pi * 4.5 / 6, ta + pi * 10.5 / 6 );
-      cx.arc( xy[0], xy[1], tr, ta + pi * 8 / 6, ta + pi * 11 / 6 );
-      tept = utl.get_xy( ta + pi * 11.5 / 6, tr, xy[ 0 ], xy[ 1 ] );
-      cx.arc( tept[0], tept[1], tr / 3.5, ta + pi * 8.5 / 6, ta + pi * 14.5 / 6 );
-      tail_end = [ xy[ 0 ] + env.scrx, xy[ 1 ] + env.scry ];
+      var xy = [ tail_end[ 0 ] - env.scrx, tail_end[ 1 ] - env.scry ],
+        x = xy[ 0 ],
+        y = xy[ 1 ],
+        rad = rgd.ang.rad,
+        ang = rgd.ply.ang,
+        ta = rad + pi / 12,
+        tr = 6,
+        wd6 = pi / 6;
+
+      cx.arc( xy[0], xy[1], tr, ta, ta + 3 * wd6 );
+      var tept = utl.get_xy( ta + 3.5 * wd6, tr, xy[ 0 ], xy[ 1 ] );
+      cx.arc( tept[0], tept[1], tr / 3.5, ta + .5 * wd6, ta + 6.5 * wd6 );
+      cx.arc( xy[0], xy[1], tr, ta + 4 * wd6, ta + 7 * wd6 );
+      tept = utl.get_xy( ta + 7.5 * wd6, tr, xy[ 0 ], xy[ 1 ] );
+      cx.arc( tept[0], tept[1], tr / 3.5, ta + 4.5 * wd6, ta + 10.5 * wd6 );
+      cx.arc( xy[0], xy[1], tr, ta + 8 * wd6, ta + 11 * wd6 );
+      tept = utl.get_xy( ta + 11.5 * wd6, tr, xy[ 0 ], xy[ 1 ] );
+      cx.arc( tept[0], tept[1], tr / 3.5, ta + 8.5 * wd6, ta + 14.5 * wd6 );
       utl.shape_stop();
 
       //plr
-      xy = utl.get_xy (rad, con, x, y);
-      //thrusty
+      var xy_c = utl.get_xy( rad, con, env.x - env.scrx, env.y - env.scry );
+      xy = xy_c;
+      //thrusties
       if ( ins.keysDown.up ) {
         cx.beginPath();
         cx.strokeStyle = 'rgb(150,150,150)';
@@ -219,24 +245,26 @@ var Plr = function() {
           cx.moveTo(fx + fz, fy);
           cx.arc( fx, fy, fz, 0, 2*pi );
         }
-        utl.shape_stop( false );
+        cx.stroke();
+        cx.closePath();
       }
       //exhaust
-      var ptt1 = utl.get_xy(ang + pi * 28 / 32, r * 1.1, xy[ 0 ], xy[ 1 ] );
-      var ptt2 = utl.get_xy(ang + pi * 36 / 32, r * 1.1, xy[ 0 ], xy[ 1 ] );
+      var wdg = pi / 32;
+      var ptt1 = utl.get_xy(ang + 28 * wdg, r * 1.1, xy[ 0 ], xy[ 1 ] );
+      var ptt2 = utl.get_xy(ang + 36 * wdg, r * 1.1, xy[ 0 ], xy[ 1 ] );
       utl.shape_start( xy );
       utl.ln_2_pt( ptt1 );
-      cx.arc( xy[ 0 ], xy[ 1 ], r * 1.1, ang + pi * 29 / 32, ang + pi * 35 / 32 );
+      cx.arc( xy[ 0 ], xy[ 1 ], r * 1.1, ang + 29 * wdg, ang + 35 * wdg );
       utl.ln_2_pt( xy );
       cx.strokeStyle = stroke;
       cx.fillStyle = '#bbb';
       utl.shape_stop();
-      //main
+      //body
       cx.fillStyle = fill;
-      var ptt3 = utl.get_xy(ang + pi * 39 / 32, r, xy[ 0 ], xy[ 1 ] );
-      var ptt4 = utl.get_xy(ang + pi * 54 / 32, r * .7, xy[ 0 ], xy[ 1 ] );
-      var ptt5 = utl.get_xy(ang + pi * 74 / 32, r * .7, xy[ 0 ], xy[ 1 ] );
-      var ptt6 = utl.get_xy(ang + pi * 89 / 32, r, xy[ 0 ], xy[ 1 ] );
+      var ptt3 = utl.get_xy(ang + 39 * wdg, r, xy[ 0 ], xy[ 1 ] );
+      var ptt4 = utl.get_xy(ang + 54 * wdg, r * .7, xy[ 0 ], xy[ 1 ] );
+      var ptt5 = utl.get_xy(ang + 74 * wdg, r * .7, xy[ 0 ], xy[ 1 ] );
+      var ptt6 = utl.get_xy(ang + 89 * wdg, r, xy[ 0 ], xy[ 1 ] );
       var ptt7 = utl.get_xy(ang, r * .5, xy[ 0 ], xy[ 1 ] );
       utl.shape_start( ptt3 );
       utl.ln_2_pt( ptt4 );
@@ -251,10 +279,10 @@ var Plr = function() {
       cx.stroke();
 
       //fins
-      var ptt8 = utl.get_xy(ang + pi * 48 / 32, r * .6, xy[ 0 ], xy[ 1 ] );
-      var ptt9 = utl.get_xy(ang + pi * 16 / 32, r * .6, xy[ 0 ], xy[ 1 ] );
-      var ptt10 = utl.get_xy(ang + pi * 43 / 32, r * 1, xy[ 0 ], xy[ 1 ] );
-      var ptt11 = utl.get_xy(ang + pi * 21 / 32, r * 1, xy[ 0 ], xy[ 1 ] );
+      var ptt8 = utl.get_xy(ang + 48 * wdg, r * .6, xy[ 0 ], xy[ 1 ] );
+      var ptt9 = utl.get_xy(ang + 16 * wdg, r * .6, xy[ 0 ], xy[ 1 ] );
+      var ptt10 = utl.get_xy(ang + 43 * wdg, r * 1, xy[ 0 ], xy[ 1 ] );
+      var ptt11 = utl.get_xy(ang + 21 * wdg, r * 1, xy[ 0 ], xy[ 1 ] );
       cx.moveTo( ptt8[ 0 ], ptt8[ 1 ] );
       utl.ln_2_pt( ptt9 );
       utl.ln_2_pt( ptt11 );
@@ -280,7 +308,7 @@ var Plr = function() {
       var ptt12 = utl.get_xy( cna, look_amt, ptt7[ 0 ], ptt7[ 1 ] );
       cx.beginPath();
       cx.arc( ptt12[ 0 ], ptt12[ 1 ], eyerad, 0, pi * 2 );
-      cx.fillStyle = '#206040';
+      cx.fillStyle = '#309060';
       utl.shape_stop();
     }
   }

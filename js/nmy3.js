@@ -8,7 +8,7 @@ var Nmy3 = function() {
   n.get_next_target = [];
 
   n.get_next_target = function() {
-    n.next_target = [ 1500, 1000 ];//[ env.scrx + utl.any( env.scrw, 0 ), env.scry + utl.any( env.scrh ) ];
+    n.next_target = [ utl.any( env.w, 0 ), utl.any( env.h, 0 ) ];
   }
 
   n.get_next_target();
@@ -29,17 +29,17 @@ var Nmy3 = function() {
     n[ n.action ]();
     switch ( n.action ) {
       case 'randomy' :
-        if ( game_mode != 'end' && !(frame % ~~( n.v * 200 ) ) ) {
+        if ( game_mode != 'end' && !( mvs % ~~( n.v * 250 ) ) ) {
           nmys.push( new NmyBmb( n.x, n.y ) );
         }
         break;
       case 'reversed' :
-          if ( !(frame % ~~( n.v * 100 ) ) ) {
+          if ( !( mvs % ~~( n.v * 125 ) ) ) {
             nmys.push( new PlrBmb( n.x, n.y ) );
           }
           n.a += rgd.ang.vel;
         break;
-      case 'follow' : 
+      case 'follow' :
         n.action = 'randomy';
         break;
       case 'death' :
@@ -55,6 +55,9 @@ var Nmy3 = function() {
       case 'randomy' :
       case 'wobble' :
       case 'reversed' :
+        if ( n.action === 'wobble' ) {
+          n.drw_tmr( ex, ey, n.countdown / 500 );
+        }
         var sf = n.a + pi / 2 + 0.8 * Math.sin( frame * n.v / 12 ),
           cf = n.a - pi / 2 - 0.8 * Math.cos( frame * n.v / 11 ),
           adj = 0.06* pi,
@@ -83,8 +86,7 @@ var Nmy3 = function() {
             n.npt_xy( n.a + pi * 1.78, n.r),
             n.npt_xy( n.a + pi * 1.87, n.r)
           ];
-        cx.fillStyle = n.fill;
-        cx.strokeStyle = n.stroke;
+        n.rst_cl();
         utl.shape_start( arms[ 0 ] );
         utl.lns_frm_arr( arms );
         utl.shape_stop();
@@ -92,7 +94,7 @@ var Nmy3 = function() {
         utl.lns_frm_arr ( pts );
         utl.shape_stop();
         break;
-      case 'death' : 
+      case 'death' :
         n.drw_death();
         break;
     }

@@ -24,25 +24,27 @@ var Ngn = function() {
         bgs[ i ].drw( env.scrx, env.scry );
       }
     }
-    if ( plr ) { plr.drw(); };
     if ( nmys.length ) {
       for ( var i = 0, l = nmys.length; i < l; i++ ) {
         nmys[ i ].drw( env.scrx, env.scry );
       }
     }
+    if ( plr ) { plr.drw(); };
     if ( scrbrd ) { scrbrd.drw(); };
     frame++;
   };
   function mv() {
     toa = window.setTimeout( mv, 17 );
+    mvs++;
     if ( game_mode === 'paused' ) { return; }
     for ( var i = 0, l = nmys.length; i < l; i++ ) {
       if ( nmys[ i ] ) {
         nmys[ i ].mv( i );
       }
     }
-    if ( nmys.length < 15 + frame / 5000 && !( frame % ~~( 200 - ( 1 / frame / frame / frame ) ) ) ) {
-      var nnum = utl.any( 3, 0 ) + 1;
+    if ( nmys.length < 15 + mvs / 1000 && !( mvs % ~~( 200 - ( 1 / mvs / mvs / mvs ) ) ) ) {
+      // 1, 2 at 45sec, 3 at 90sec,
+      var nnum = utl.any( Math.min( ~~( mvs / 2700, 3 ) ), 0 ) + 1;
       nmys.push( new window[ 'Nmy' + nnum ]() );
     }
     if ( game_mode != 'start' ) { return; };
@@ -58,7 +60,7 @@ var Ngn = function() {
   frm();
   return {
     end_game: function() {
-      game_mode = 'end';   
+      game_mode = 'end';
     },
     go: function() {
       if ( game_mode === 'end' || game_mode === 'init' ) {
@@ -70,20 +72,22 @@ var Ngn = function() {
         rgd = {
           lin: {
             vx: 0,
-            vy: 0,
+            vy: -10,
             x: 100,
             y: 100
           },
           ang: {
-            vel: 0,
-            rad: Math.random()*2*pi
+            vel: 0.2,
+            rad: Math.random() * 2 * pi
           },
           ply: {
-            ang: 0,
-            rot: 0,
+            ang: 2.8,
+            rot: 0.5,
             r: 20
           }
         };
+        env.x = 1500;
+        env.y = 2100;
         frame = 0;
         lastframe = 0;
         uniqr = Math.random();

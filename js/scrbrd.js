@@ -12,10 +12,13 @@ var Scrbrd = function() {
     ],
     mssg = mssgs[ utl.any( mssgs.length, 0 ) ];
 
-  function txt( tx, sz, y, mp = 0, al = 'right', x = 20 ) {
+  function txt( tx, sz, y, mp, al, x ) {
     var add = mp ? cnt : 0,
       wbx = size * Math.sin( frame / 60 ) + size / 2,
-      wby = size * Math.sin( frame / 57 ) / 2;
+      wby = size * Math.cos( frame / 51 ) / 2;
+    x = x || 20;
+    al = al || 'right';
+    mp = mp || 0;
     cx.textAlign = al;
     cx.fillStyle = 'rgba(255,255,255,0.3)';
     cx.font = 'bold ' + ( size * ( sz + 1 ) + add ) + 'px sans-serif';
