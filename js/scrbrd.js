@@ -51,12 +51,12 @@ var Scrbrd = function() {
         txt( 'reversal', 36, cvh * 10 / 32, 0, 'left', cvw - 20 );
         txt( 'probe', 36, cvh * 7.5 / 32, 0, 'left', cvw - 20 );
       }
-      if ( game_mode === 'pause' || game_mode === 'hint' ) {
+      if ( game_mode === 'pause' || game_mode === 'hint-end' || game_mode === 'hint-init' ) {
         // show hints
       }
-      if ( game_mode === 'end' || game_mode === 'init' || game_mode === 'pause' ) {
+      if ( game_mode === 'end' || game_mode === 'init' ) {
         txt( 'enter to play.', 16, cvh * 5 / 32, 0, 'left', cvw - 20 );
-        //txt( 'esc for hints.', 16, cvh* 3 / 32, 0, 'left', cvw - 20 );
+        txt( 'esc for hints.', 16, cvh* 3 / 32, 0, 'left', cvw - 20 );
       }
       cx.beginPath();
       txt( 'you:', 16, 115 );

@@ -43,7 +43,6 @@ var Plr = function() {
     },
     add_to_tail: function( nmy ) {
       con += 6.5;
-      console.log(con);
       nmy.fill = fill;
       nmy.stroke = stroke;
       tail.push( nmy );
@@ -57,7 +56,6 @@ var Plr = function() {
             tail[ 0 ].death_init();
             tail.splice( t, 1 );
             con -= 6.5;
-            console.log(con);
           } else {
             for ( var n = 0; n < 12; n++ ) {
               var nmy = new Nmy2();
@@ -80,7 +78,7 @@ var Plr = function() {
           utl.is_close( nx, ny, nr, n.x, n.y, n.r ) ) {
           n.death_init();
           tail.splice( t, 1 );
-          con -= 6;
+          con -= 6.5;
           scrbrd.pt();
           return true;
         };
@@ -137,7 +135,7 @@ var Plr = function() {
       var xy = utl.get_xy ( rad, con, x, y );
       for ( var t = 0, l = tail.length; t < l; t++ ) {
         if ( tail[ t ] ) {
-          
+
           xy = utl.get_xy (rad, dist, xy[0], xy[1]);
           // elasticy - leave for now
           // old = lasttows[ t ] || xy;
@@ -176,9 +174,8 @@ var Plr = function() {
       var cury = trail[ 0 ][ 1 ];
 
       for ( var i = 0, l = trail.length; i < l; i++ ) {
-        if ( Math.abs( trail[ i ][ 0 ] - curx ) < 100 &&
-          ( Math.abs( trail[ i ][ 0 ] - curx ) > 3 ||
-          Math.abs( trail[ i ][ 1 ] - cury ) > 3 ) ) {
+        if ( Math.abs( trail[ i ][ 0 ] - curx ) > 3 ||
+          Math.abs( trail[ i ][ 1 ] - cury ) > 3 ) {
           cx.strokeStyle = 'rgba(255,255,255,' + ( i / 120 ) + ')';
           cx.lineWidth = i / 30;
           utl.shape_start( [ curx - env.scrx, cury - env.scry ] );
@@ -203,10 +200,7 @@ var Plr = function() {
 
       //tail ( nmys drw does this )
 
-      // tailend
-      cx.beginPath();
-      cx.fillStyle = fill;
-      cx.strokeStyle = stroke;
+
 
       var xy = [ tail_end[ 0 ] - env.scrx, tail_end[ 1 ] - env.scry ],
         x = xy[ 0 ],
@@ -215,7 +209,20 @@ var Plr = function() {
         ang = rgd.ply.ang,
         ta = rad + pi / 12,
         tr = 6,
-        wd6 = pi / 6;
+        wd6 = pi / 6,
+        xy_c = utl.get_xy( rad, con, env.x - env.scrx, env.y - env.scry );
+
+      utl.shape_start( xy );
+      cx.lineWidth = 3;
+      cx.strokeStyle = 'rgba(0,0,0,0.5)';
+      utl.ln_2_pt( xy_c );
+      utl.shape_stop();
+
+      // tailend
+      cx.beginPath();
+      cx.lineWidth = 0.5;
+      cx.fillStyle = fill;
+      cx.strokeStyle = stroke;
 
       cx.arc( xy[0], xy[1], tr, ta, ta + 3 * wd6 );
       var tept = utl.get_xy( ta + 3.5 * wd6, tr, xy[ 0 ], xy[ 1 ] );
@@ -229,7 +236,7 @@ var Plr = function() {
       utl.shape_stop();
 
       //plr
-      var xy_c = utl.get_xy( rad, con, env.x - env.scrx, env.y - env.scry );
+
       xy = xy_c;
       //thrusties
       if ( ins.keysDown.up ) {

@@ -29,15 +29,17 @@ var Nmy3 = function() {
     n[ n.action ]();
     switch ( n.action ) {
       case 'randomy' :
-        if ( game_mode != 'end' && !( mvs % ~~( n.v * 250 ) ) ) {
+        var nxt_bmb = mvs % ~~( n.v * 250 );
+        if ( game_mode != 'end' && nxt_bmb <= 0 ) {
           nmys.push( new NmyBmb( n.x, n.y ) );
         }
         break;
       case 'reversed' :
-          if ( !( mvs % ~~( n.v * 125 ) ) ) {
-            nmys.push( new PlrBmb( n.x, n.y ) );
-          }
-          n.a += rgd.ang.vel;
+        var nxt_bmb = mvs % ~~( n.v * 125 );
+        if ( nxt_bmb <= 0 ) {
+          nmys.push( new PlrBmb( n.x, n.y ) );
+        }
+        n.a += rgd.ang.vel;
         break;
       case 'follow' :
         n.action = 'randomy';

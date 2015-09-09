@@ -5,23 +5,30 @@ var Ins = function() {
     left: 37,
     up: 38,
     right: 39,
-    space: 32
+    space: 32,
+    w: 87,
+    a: 65,
+    d: 68,
+    esc: 27
   };
-  ins.keysDown = { left: false, up: false, right: false };
+  ins.keysDown = { left : false, up : false, right : false };
   ins.kDown = function(evt) {
     var KeyID = evt.keyCode;
     switch (KeyID) {
-      case ins.keys.up: case ins.keys.w:
+      case ins.keys.up : case ins.keys.w :
         ins.keysDown.up = true;
         break;
-      case ins.keys.left: case ins.keys.a:
+      case ins.keys.left : case ins.keys.a :
         ins.keysDown.left = true;
         break;
-      case ins.keys.right: case ins.keys.d:
+      case ins.keys.right : case ins.keys.d :
         ins.keysDown.right = true;
         break;
-      case ins.keys.ntr:
+      case ins.keys.ntr :
         ngn.go();
+        break;
+      case ins.keys.esc :
+        ngn.esc();
         break;
     }
   }

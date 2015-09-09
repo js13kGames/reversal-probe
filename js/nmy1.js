@@ -39,7 +39,8 @@ var Nmy1 = function() {
         } else if ( !( utl.is_close( n.x, n.y, n.shyness * 1.2, env.x, env.y, 0 ) ) ) {
           n.action = 'follow';
         } else {
-          if ( game_mode != 'end' && !( mvs % ~~( n.v * 100 ) ) ) {
+          var nxt_bmb = mvs % ~~( n.v * 100 );
+          if ( game_mode != 'end' && nxt_bmb <= 0 ) {
             nmys.push( new NmyBllt( n.x, n.y ) );
           }
         }
@@ -50,7 +51,8 @@ var Nmy1 = function() {
         }
         break;
       case 'reversed' :
-          if ( !(mvs % ~~( n.v * 100 ) ) ) {
+          var nxt_bmb = mvs % ~~( n.v * 100 );
+          if ( nxt_bmb <= 0 ) {
             nmys.push( new PlrBllt( n.x, n.y ) );
           }
           n.a += rgd.ang.vel;

@@ -6,11 +6,18 @@ var Bllt = function( ex, ey ) {
   n.v = 3;
   n.r = 3;
   n.action = 'translate';
+  n.glw_cl = 'rgba(255,0,64,0.5)';
 
   n.drw = function( ex, ey ) {
     var pt_tail = n.npt_xy( n.a + pi, n.r * 2.5 ),
       pt_2_a = n.a + ( 21 * pi / 16),
       pt_2 = n.npt_xy ( pt_2_a, n.r );
+
+    utl.shape_start( [ n.x - ex, n.y - ey ] );
+    cx.fillStyle = n.glw_cl;
+    cx.arc( n.x - ex, n.y - ey, n.r * 3 / 2, 0, pi * 2 );
+    cx.fill();
+    cx.closePath();
     utl.shape_start( pt_tail );
     utl.ln_2_pt( pt_2 );
     cx.arc( n.x - ex, n.y - ey, n.r, pt_2_a, pt_2_a + 11 * pi / 8 );
@@ -44,6 +51,7 @@ var PlrBllt = function( ex, ey ) {
   n.fill = 'white';
   n.stroke = 'black';
   n.v = 5;
+  n.glw_cl = 'rgba(0,255,64,0.5)';
 
   n.get_edir = function() {
     var target = utl.get_first_close_nmy( n.x, n.y );
@@ -84,6 +92,11 @@ var Bmb = function( ex, ey ) {
         var ptr = [ n.x - ex + n.r, n.y - ey ],
           pt0 = [ n.x - ex, n.y - ey ],
           prcnt = n.countdown / 240;
+        utl.shape_start( ptr );
+        cx.fillStyle = n.glw_cl;
+        cx.arc( pt0[ 0 ], pt0[ 1 ], n.r * 3 / 2, 0, pi * 2 );
+        cx.fill();
+        cx.closePath();
         n.drw_tmr( ex, ey, prcnt, n.fill );
         utl.shape_start( ptr );
         cx.arc( pt0[ 0 ], pt0[ 1 ], n.r, 0, pi * 2 );
@@ -131,6 +144,7 @@ var PlrBmb = function( ex, ey ) {
   Bmb.call( n, ex, ey );
   n.fill = 'white';
   n.stroke = 'black';
+  n.glw_cl = 'rgba(0,255,64,0.5)';
 
   n.mv = function( nmy_pos ) {
     n.id =  nmy_pos;

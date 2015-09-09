@@ -119,7 +119,8 @@ function Nmy0() {
     utl.ln_2_pt( pt1 );
     cx.arc( pt0[ 0 ], pt0[ 1 ], n.r * 4 / 3, pi * 3 / 2, pi * 3 / 2 + pi * 2 * prcnt );
     utl.ln_2_pt( pt0 );
-    utl.shape_stop();
+    cx.fill();
+    cx.closePath();
     n.rst_cl();
   }
 
