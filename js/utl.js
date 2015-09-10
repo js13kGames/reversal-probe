@@ -53,6 +53,9 @@ var Utl = function() {
       }
       return false;
     },
+    on_scrn: function( x, y ) {
+      return utl.is_in_bounds( env.scrx, env.scrx + cvw, env.scry, env.scry + cvh, x, y );
+    },
     is_in_bounds: function( lxmin, lxmax, lymin, lymax, px, py ) {
       return ( px > lxmin && px < lxmax && py > lymin && py < lymax );
     },

@@ -37,6 +37,7 @@ var Ins = function() {
     switch (KeyID) {
       case ins.keys.up: case ins.keys.w:
         ins.keysDown.up = false;
+        snds.thrust_stop();
         break;
       case ins.keys.left: case ins.keys.a:
         ins.keysDown.left = false;

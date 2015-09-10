@@ -46,6 +46,7 @@ var Plr = function() {
       nmy.fill = fill;
       nmy.stroke = stroke;
       tail.push( nmy );
+      snds.upgrade();
     },
     tail_ht: function( nx, ny, nr ) {
       var l = tail.length;
@@ -106,6 +107,7 @@ var Plr = function() {
       if ( ins.keysDown.up ) {
         var sqt = Math.sqrt( con );
         var a = rgd.ply.ang;
+        snds.thrust_start();
         rgd.ang.vel -= Math.cos( a + pi/2 - rgd.ang.rad ) / 200 / sqt;
         axy = utl.get_xy( a,.2-sqt/100,0,0 );
         rgd.lin.vx += axy[ 0 ];
@@ -213,8 +215,8 @@ var Plr = function() {
         xy_c = utl.get_xy( rad, con, env.x - env.scrx, env.y - env.scry );
 
       utl.shape_start( xy );
-      cx.lineWidth = 3;
-      cx.strokeStyle = 'rgba(0,0,0,0.5)';
+      cx.lineWidth = 2;
+      cx.strokeStyle = 'rgba(0,0,0,0.25)';
       utl.ln_2_pt( xy_c );
       utl.shape_stop();
 

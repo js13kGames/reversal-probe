@@ -40,8 +40,12 @@ var Nmy1 = function() {
           n.action = 'follow';
         } else {
           var nxt_bmb = mvs % ~~( n.v * 100 );
-          if ( game_mode != 'end' && nxt_bmb <= 0 ) {
-            nmys.push( new NmyBllt( n.x, n.y ) );
+          if ( game_mode === 'start' && nxt_bmb <= 0 ) {
+            if ( utl.get_first_close_nmy( n.x, n.y ) ) {
+              nmys.push( new NmyBllt( n.x, n.y ) );
+              var vol = utl.on_scrn( n.x, n.y ) ? 1 : 0.4;
+              snds.shoot( vol );
+            }
           }
         }
         break;
@@ -53,7 +57,11 @@ var Nmy1 = function() {
       case 'reversed' :
           var nxt_bmb = mvs % ~~( n.v * 100 );
           if ( nxt_bmb <= 0 ) {
-            nmys.push( new PlrBllt( n.x, n.y ) );
+            if ( utl.get_first_close_nmy( n.x, n.y ) ) {
+              nmys.push( new PlrBllt( n.x, n.y ) );
+              var vol = utl.on_scrn( n.x, n.y ) ? 1 : 0.4; 
+              snds.shoot( vol );
+            }
           }
           n.a += rgd.ang.vel;
         break;

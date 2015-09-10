@@ -82,6 +82,8 @@ function Nmy0() {
       ] );
     }
     n.action = 'death';
+    var vol = utl.on_scrn( n.x, n.y ) ? 1 : 0.4;
+    snds.boom( vol );
   }
 
   n.trail_wobble = function() {

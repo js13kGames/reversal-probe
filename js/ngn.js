@@ -119,6 +119,9 @@ var Ngn = function() {
           uniqg = Math.random();
           uniqb = Math.random();
           bgs = [];
+          snds.reset();
+          mvs = 0;
+          frame = 0;
           for (var i = 0, l = settings.amt_bg; i < l; i++) {
             bgs.push( new Bg( i + 50 ) );
           }
@@ -141,3 +144,4 @@ if(document.addEventListener) {
   document.addEventListener( "visibilitychange", utl.visibility_event );
 }
 var ngn = new Ngn();
+
