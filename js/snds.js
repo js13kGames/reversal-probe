@@ -1,29 +1,19 @@
-function kck_drm( acx ) {
-  var tm = acx.currentTime,
+function sldr( acx, hz_strt, vol_strt, hz_end, vol_end, dur ) {
+    var tm = acx.currentTime,
     osc = acx.createOscillator(),
     gainr = acx.createGain();
   osc.connect( gainr );
   gainr.connect( acx.destination );
-  osc.frequency.setValueAtTime( 110, tm );
-  gainr.gain.setValueAtTime( 1.3, tm );
-  osc.frequency.exponentialRampToValueAtTime( .001, tm + .5);
-  gainr.gain.exponentialRampToValueAtTime( .001, tm + .5);
+  osc.frequency.setValueAtTime( hz_strt, tm );
+  gainr.gain.setValueAtTime( vol_strt, tm );
+  osc.frequency.exponentialRampToValueAtTime( hz_end, tm + dur );
+  gainr.gain.exponentialRampToValueAtTime( vol_end, tm + dur );
   osc.start( tm );
-  osc.stop( tm + .5 );
-};
+  osc.stop( tm + dur );
+}
 
-function pup( acx ) {
-  var tm = acx.currentTime,
-    osc = acx.createOscillator(),
-    gainr = acx.createGain();
-  osc.connect( gainr );
-  gainr.connect( acx.destination );
-  osc.frequency.setValueAtTime( 164.81, tm );
-  gainr.gain.setValueAtTime( 0.8, tm );
-  osc.frequency.exponentialRampToValueAtTime( 1760, tm + .4);
-  gainr.gain.exponentialRampToValueAtTime( 1.2, tm + .4);
-  osc.start( tm );
-  osc.stop( tm + .4 );
+function kck_drm( acx ) {
+  sldr( acx, 164.81, 1.5, .001, 0.01, .5 );
 };
 
 function bng( acx, buff, low, max, lngth ) {
@@ -115,7 +105,7 @@ var Snds = function() {
     }
 
   var thrust = new Nz( acx, buff, 0.6 );
-  
+
   function gt_hrtz( frm_a0 ) {
     return Math.round( 100 * a0 * Math.pow( stone, frm_a0 ) ) / 100;
   }
@@ -152,10 +142,14 @@ var Snds = function() {
         sqk.set_vol( 0 );
         break;
     }
-    if ( cnt % 8 === 0 || ( cnt % 2 === 0 && utl.any( ~~(cnt / 128), 0 ) > 0 ) ) {
+    if ( cnt % 8 === 0 || 
+      ( cnt % 2 === 0 && 
+      utl.any( Math.min( ~~( cnt / 128 ) - 1, 3), 0 ) > 0 ) ) {
       kck_drm( acx )
     }
-    if ( ( cnt % 2 === 1 ) || ( cnt % 2 === 0 && utl.any( ~~(cnt / 128) - 1, 0 ) > 0 ) ) {
+    if ( ( cnt % 2 === 1 ) ||
+      ( cnt % 2 === 0 
+      && utl.any( Math.min( ~~( cnt / 128 ) - 1, 3), 0 ) > 0 ) ) {
       bng( acx, buff, 30000, .2, .18 );
     }
     switch ( cnt % 16 ) {
@@ -206,7 +200,7 @@ var Snds = function() {
     if ( snd_trb && !( cnt % 2 ) && utl.any( 2, 0 ) ) {
       snd_trb.set_nt( utl.any( hrtz_trbl.length, 0 ) );
       snd_trb.surprise_type( 0, 3 );
-      snd_trb.set_vol( Math.random() / 20 + .1 );
+      snd_trb.set_vol( Math.random() / 12 + .1 );
     }
   }
 
@@ -226,9 +220,9 @@ var Snds = function() {
       bng( acx, buff, 100, 16 * vol, 3 );
     },
     reset: function() {
-      if ( snd_trb ) { snd_trb.set_vol( 0 ); }; 
+      if ( snd_trb ) { snd_trb.set_vol( 0 ); };
       if ( snd_bss ) { snd_bss.set_vol( 0 ); };
-      chd_bs.set_vol( 0 ); 
+      chd_bs.set_vol( 0 );
       if ( chd_tr ) { chd_tr.set_vol( 0 ); };
       if ( sqk ) { sqk.set_vol( 0 ) };
       snd_trb = 0;
@@ -239,7 +233,7 @@ var Snds = function() {
       cnt = 0;
     },
     upgrade: function() {
-      pup( acx );
+      sldr( acx, 110, 0.8, 1760, 1.2, .4 );
     }
   }
 

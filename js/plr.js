@@ -33,7 +33,7 @@ var Plr = function() {
       return false;
     },
     is_touching_trail: function( nmyx, nmyy, nmyr ) {
-      if ( game_mode === 'end' ) { return; };
+      if ( game_mode !== 'start' ) { return; };
       for ( var t = trail.length - 1; t > 0; t-- ) {
         if ( utl.is_close_course( nmyx, nmyy, nmyr, trail[ t ][ 0 ], trail[ t ][ 1 ], 0 ) ) {
           return true;
@@ -51,7 +51,7 @@ var Plr = function() {
     tail_ht: function( nx, ny, nr ) {
       var l = tail.length;
       // hit plr if no tail
-      if ( game_mode != 'end' ) {
+      if ( game_mode === 'start' ) {
         if ( utl.is_close( nx, ny, nr, env.x, env.y, r ) ) {
           if ( l ) {
             tail[ 0 ].death_init();
@@ -126,7 +126,6 @@ var Plr = function() {
       rgd.ang.vel *= .996;
       rgd.lin.vx *= .99;
       rgd.lin.vy *= .99;
-      // todo: update tail nmys and tail end
       var oxy = utl.plr_to_scr (env.x, env.y),
         x = oxy[ 0 ],
         y = oxy[ 1 ],
@@ -165,7 +164,7 @@ var Plr = function() {
       }
     },
     drw: function() {
-      if ( game_mode === 'end' || game_mode === 'init' ) { return; };
+      if ( game_mode === 'init' ) { return; };
 
       //trail
       var poxy = utl.plr_to_scr (env.x, env.y);

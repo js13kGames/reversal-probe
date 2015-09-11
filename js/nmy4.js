@@ -9,7 +9,7 @@ var Nmy4 = function() {
     Nmy0.call( n );
     n.fill = '#444';
     n.v = 2 + utl.infany( 1 ),
-    n.mmbrs = [],
+    n.mmbrs = [];
 
   for ( var i = utl.any( 4, 0 ) + 1; i >= 0; i-- ) {
     n.mmbrs.push( new Nmy4pc() );

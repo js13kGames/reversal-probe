@@ -36,18 +36,19 @@ var Ngn = function() {
   function mv() {
     toa = window.setTimeout( mv, 17 );
     mvs++;
-    if ( game_mode === 'paused' ) { return; }
+    if ( game_mode === 'pause' ) { return; }
     for ( var i = 0, l = nmys.length; i < l; i++ ) {
       if ( nmys[ i ] ) {
         nmys[ i ].mv( i );
       }
     }
-    if ( nmys.length < 15 + mvs / 1000 && !( mvs % ~~( 200 - ( 1 / mvs / mvs / mvs ) ) ) ) {
-      // 1, 2 at 45sec, 3 at 90sec,
-      var nnum = utl.any( Math.min( ~~( mvs / 2700, 3 ) ), 0 ) + 1;
+    if ( game_mode !== 'start') { return; }
+    if ( num_nmys < ( 2 + Math.min( mvs / 1000, 250 ) ) &&
+      ~~( utl.any( 1000 - Math.min ( mvs / 1000, 250 ) ) ) === 0 ) {
+      var nnum = utl.any( ~~( Math.min ( mvs / 2700 + 1, 3 ) ), 0 ) + 1;
       nmys.push( new window[ 'Nmy' + nnum ]() );
+      num_nmys++;
     }
-    if ( game_mode != 'start' ) { return; };
     if ( plr ) { plr.mv(); };
   };
   function frm() {
@@ -60,34 +61,20 @@ var Ngn = function() {
   frm();
   return {
     end_game: function() {
-      game_mode = 'end';
+      game_mode = 'init';
     },
     esc: function() {
       switch ( game_mode ) {
         case 'start' :
           game_mode = 'pause';
           break;
-        case 'init' :
-          game_mode = 'hint-init';
-          break;
-        case 'end' :
-          game_mode = 'hint-end';
-          break;
         case 'pause' :
           game_mode = 'start';
-          break;
-        case 'hint-init' :
-          game_mode = 'init';
-          break;
-        case 'hint-end' :
-          game_mode = 'end';
           break;
       }
     },
     go: function() {
-      console.log (game_mode);
       switch ( game_mode ) {
-        case 'end' :
         case 'init' :
           game_mode = 'start';
           nmys = [];
@@ -112,6 +99,7 @@ var Ngn = function() {
             }
           };
           env.x = 1500;
+          num_nmys = 0,
           env.y = 2100;
           frame = 0;
           lastframe = 0;
@@ -126,14 +114,11 @@ var Ngn = function() {
             bgs.push( new Bg( i + 50 ) );
           }
           break;
-        case 'hint-init' :
-          game_mode = 'init';
-          break;
-        case 'hint-end' :
-          game_mode = 'end';
-          break;
         case 'pause' :
           game_mode = 'start';
+          break;
+        case 'start' :
+          game_mode = 'pause';
           break;
       }
       console.log (game_mode);

@@ -39,7 +39,7 @@ var Nmy1 = function() {
         } else if ( !( utl.is_close( n.x, n.y, n.shyness * 1.2, env.x, env.y, 0 ) ) ) {
           n.action = 'follow';
         } else {
-          var nxt_bmb = mvs % ~~( n.v * 100 );
+          var nxt_bmb = mvs % ~~( n.v * 50 );
           if ( game_mode === 'start' && nxt_bmb <= 0 ) {
             if ( utl.get_first_close_nmy( n.x, n.y ) ) {
               nmys.push( new NmyBllt( n.x, n.y ) );
@@ -55,7 +55,7 @@ var Nmy1 = function() {
         }
         break;
       case 'reversed' :
-          var nxt_bmb = mvs % ~~( n.v * 100 );
+          var nxt_bmb = mvs % ~~( n.v * 80 );
           if ( nxt_bmb <= 0 ) {
             if ( utl.get_first_close_nmy( n.x, n.y ) ) {
               nmys.push( new PlrBllt( n.x, n.y ) );
@@ -93,7 +93,7 @@ var Nmy1 = function() {
         if ( n.action === 'wobble' || n.action === 'reversed' ) {
           // inanimate
         } else {
-          n.spin += n.av / 30;
+          if ( game_mode !== 'pause' ) { n.spin += n.av / 30; }
           if ( !~~( frame % ( 200 - Math.abs( n.av ) * 50 ) ) ) {
             n.av = utl.infany( 0.75 ) + 0.5;
             if ( ~~utl.any( 2, 0 ) ) {

@@ -48,6 +48,7 @@ function Nmy0() {
     } else {
       if ( plr.is_touching_whole( n.x, n.y, n.r ) ) {
         n.action = 'reversed';
+        num_nmys--;
         plr.add_to_tail( n );
         n.fill = 'white';
         n.stroke = 'black';
@@ -71,6 +72,9 @@ function Nmy0() {
   }
 
   n.death_init = function() {
+    if ( [ 'follow', 'circle', 'retreat', 'randomy' ].indexOf( n.action ) > -1 ) {
+      num_nmys--;
+    }
     for ( var i = 0, l = 24; i < l; i++ ) {
       n.bits.push( [
         -3 + utl.infanyeq( 4 ),

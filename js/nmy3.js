@@ -30,7 +30,7 @@ var Nmy3 = function() {
     switch ( n.action ) {
       case 'randomy' :
         var nxt_bmb = mvs % ~~( n.v * 250 );
-        if ( game_mode != 'end' && nxt_bmb <= 0 ) {
+        if ( game_mode === 'start' && nxt_bmb <= 0 ) {
           nmys.push( new NmyBmb( n.x, n.y ) );
         }
         break;

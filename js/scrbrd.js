@@ -2,15 +2,7 @@ var Scrbrd = function() {
   var you = 0,
     them = 0,
     size = 1,
-    cnt = 0,
-    mssgs = [
-      'they got you.',
-      'they scored.',
-      'nearly good.',
-      'oh dear.',
-      'try plan b.'
-    ],
-    mssg = mssgs[ utl.any( mssgs.length, 0 ) ];
+    cnt = 0;
 
   function txt( tx, sz, y, mp, al, x ) {
     var add = mp ? cnt : 0,
@@ -37,26 +29,19 @@ var Scrbrd = function() {
       cnt = 40;
     },
     drw: function() {
-      if ( game_mode === 'end' || game_mode === 'init' || game_mode === 'pause' ) {
+      if ( game_mode === 'init' || game_mode === 'pause' ) {
         size = cvh / 540 + 1.5;
       } else {
         size = 1;
       }
-      if ( game_mode === 'end' ) {
-        them = 1;
-        txt( mssg, 36, cvh * 10 / 32 , 0, 'left', cvw - 20 );
-        txt( 'again?', 36, cvh * 7 / 32, 0, 'left', cvw - 20 );
-      }
       if ( game_mode === 'init' ) {
         txt( 'reversal', 36, cvh * 10 / 32, 0, 'left', cvw - 20 );
         txt( 'probe', 36, cvh * 7.5 / 32, 0, 'left', cvw - 20 );
+        txt( 'enter to play.', 16, cvh * 1 / 32, 0, 'left', cvw - 20 );
       }
-      if ( game_mode === 'pause' || game_mode === 'hint-end' || game_mode === 'hint-init' ) {
-        // show hints
-      }
-      if ( game_mode === 'end' || game_mode === 'init' ) {
-        txt( 'enter to play.', 16, cvh * 5 / 32, 0, 'left', cvw - 20 );
-        txt( 'esc for hints.', 16, cvh* 3 / 32, 0, 'left', cvw - 20 );
+      if (game_mode === 'pause' ) {
+        txt( 'paused', 36, cvh * 10 / 32, 0, 'left', cvw - 20 );
+        txt( 'esc or enter to continue.', 16, cvh * 1 / 32, 0, 'left', cvw - 20 );
       }
       cx.beginPath();
       txt( 'you:', 16, 115 );
