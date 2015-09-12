@@ -3,8 +3,8 @@ function Nmy0() {
   var n = this,
     start_rnttn = utl.any( 2, 0 ),
     start_end = utl.any( 2, 0 );
-  n.x = start_rnttn ? utl.any( env.w, 50 ) : ( start_end ? - 50 : env.h + 50 );
-  n.y = start_rnttn ? ( start_end ? - 50 : env.w + 50 ) : utl.any( env.h, 50 );
+  n.x = start_rnttn ? utl.any( env.w, 0 ) : ( start_end ? - 50 : env.w + 50 );
+  n.y = start_rnttn ? ( start_end ? - 50 : env.h + 50 ) : utl.any( env.h, 0 );
   n.a = utl.infany( 2 * pi );
   n.v = utl.infany( 1 ) + 1;
   n.r;
@@ -57,12 +57,10 @@ function Nmy0() {
     }
   };
 
-  n.reversed = function() {
-
-  };
+  n.reversed = function() {};
 
   n.death = function() {
-    if ( n.bits_count < 0 ) {
+    if ( n.bits_count++ < 0 ) {
       return;
     }
     n.translate();
@@ -72,7 +70,7 @@ function Nmy0() {
   }
 
   n.death_init = function() {
-    if ( [ 'follow', 'circle', 'retreat', 'randomy' ].indexOf( n.action ) > -1 ) {
+    if ( [ 'follow', 'circle', 'retreat', 'randomy', 'group' ].indexOf( n.action ) > -1 ) {
       num_nmys--;
     }
     for ( var i = 0, l = 24; i < l; i++ ) {
@@ -100,16 +98,14 @@ function Nmy0() {
   n.tail_test = function() {
     if ( plr.tail_ht( n.x, n.y, n.r ) ) {
       n.death_init();
+      return true;
     }
+    return false;
   };
 
   n.npt_xy = function( a, r ) {
     return utl.get_xy( a, r, n.x - env.scrx, n.y - env.scry );
   }
-
-  n.mv = function( nmy_pos ) {};
-
-  n.drw = function( ex, ey ) {};
 
   n.death_col = function() {
     var alpha = ( 100 - n.bits_count * 3 ) / 100;
@@ -131,7 +127,7 @@ function Nmy0() {
   }
 
   n.drw_death = function() {
-    if ( n.bits_count++ < 0 ) {
+    if ( n.bits_count < 0 ) {
       return;
     }
     n.death_col();

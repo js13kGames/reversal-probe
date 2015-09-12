@@ -53,6 +53,10 @@ var Nmy3 = function() {
   };
 
   n.drw = function( ex, ey ) {
+    if ( n.action === 'death' ) { n.drw_death(); }
+    if ( !utl.is_showing ( n.x, n.y, n.r )) {
+      return;
+    }
     switch ( n.action ) {
       case 'randomy' :
       case 'wobble' :
@@ -60,8 +64,8 @@ var Nmy3 = function() {
         if ( n.action === 'wobble' ) {
           n.drw_tmr( ex, ey, n.countdown / 500 );
         }
-        var sf = n.a + pi / 2 + 0.8 * Math.sin( frame * n.v / 12 ),
-          cf = n.a - pi / 2 - 0.8 * Math.cos( frame * n.v / 11 ),
+        var sf = n.a + pi / 2 + 0.8 * Math.sin( mvs * n.v / 12 ),
+          cf = n.a - pi / 2 - 0.8 * Math.cos( mvs * n.v / 11 ),
           adj = 0.06* pi,
           sm = n.r * 0.2,
           lg = n.r * 0.8;
@@ -95,9 +99,6 @@ var Nmy3 = function() {
         utl.shape_start( pts[ 0 ] );
         utl.lns_frm_arr ( pts );
         utl.shape_stop();
-        break;
-      case 'death' :
-        n.drw_death();
         break;
     }
   }

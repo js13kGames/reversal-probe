@@ -11,18 +11,18 @@ var Ins = function() {
     d: 68,
     esc: 27
   };
-  ins.keysDown = { left : false, up : false, right : false };
+  ins.keysDown = { left : 0, up : 0, right : 0 };
   ins.kDown = function(evt) {
     var KeyID = evt.keyCode;
     switch (KeyID) {
       case ins.keys.up : case ins.keys.w :
-        ins.keysDown.up = true;
+        ins.keysDown.up = 1;
         break;
       case ins.keys.left : case ins.keys.a :
-        ins.keysDown.left = true;
+        ins.keysDown.left = 1;
         break;
       case ins.keys.right : case ins.keys.d :
-        ins.keysDown.right = true;
+        ins.keysDown.right = 1;
         break;
       case ins.keys.ntr :
         ngn.go();
@@ -36,14 +36,14 @@ var Ins = function() {
     var KeyID = evt.keyCode;
     switch (KeyID) {
       case ins.keys.up: case ins.keys.w:
-        ins.keysDown.up = false;
+        ins.keysDown.up = 0;
         snds.thrust_stop();
         break;
       case ins.keys.left: case ins.keys.a:
-        ins.keysDown.left = false;
+        ins.keysDown.left = 0;
         break;
       case ins.keys.right: case ins.keys.d:
-        ins.keysDown.right = false;
+        ins.keysDown.right = 0;
         break;
     }
   }

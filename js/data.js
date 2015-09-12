@@ -18,7 +18,6 @@ var cv = document.getElementById('cv'),
     bg_col: [ 0, 0, 0 ]
   },
   frame = 0,
-  lastframe = 0,
   game_mode = 'init',
   mvs = 0,
   num_nmys = 0,
@@ -26,16 +25,9 @@ var cv = document.getElementById('cv'),
   uniqg = Math.random(),
   uniqb = Math.random(),
 
-  // settings
-
   settings = {
-    'show_bg': true,
-    'show_plr': true,
-    'show_nmy1': true,
     'amt_bg': 80
   }
-
-  paused = 0;
 
   nmys = [];
   bgs = [];

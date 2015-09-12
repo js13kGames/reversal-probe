@@ -28,6 +28,9 @@ var Scrbrd = function() {
       you++;
       cnt = 40;
     },
+    die: function() {
+      them = 1;
+    },
     drw: function() {
       if ( game_mode === 'init' || game_mode === 'pause' ) {
         size = cvh / 540 + 1.5;
@@ -40,8 +43,8 @@ var Scrbrd = function() {
         txt( 'enter to play.', 16, cvh * 1 / 32, 0, 'left', cvw - 20 );
       }
       if (game_mode === 'pause' ) {
-        txt( 'paused', 36, cvh * 10 / 32, 0, 'left', cvw - 20 );
-        txt( 'esc or enter to continue.', 16, cvh * 1 / 32, 0, 'left', cvw - 20 );
+        // txt( 'paused', 36, cvh * 10 / 32, 0, 'left', cvw - 20 );
+        // txt( 'esc or enter to continue.', 16, cvh * 1 / 32, 0, 'left', cvw - 20 );
       }
       cx.beginPath();
       txt( 'you:', 16, 115 );

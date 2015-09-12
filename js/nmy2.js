@@ -22,6 +22,10 @@ var Nmy2 = function() {
   };
 
   n.drw = function( ex, ey ) {
+    if ( n.action === 'death' ) { n.drw_death(); }
+    if ( !utl.is_showing ( n.x, n.y, n.r )) {
+      return;
+    }
 
     switch ( n.action ) {
 
@@ -34,30 +38,30 @@ var Nmy2 = function() {
         }
         n.rst_cl();
 
-        var a1 = n.a + pi / 3 + 0.4 * Math.sin( frame * n.v / 10 ),
-          a2 = n.a - pi / 3 - 0.4 * Math.cos( frame * n.v / 11 );
+        var a1 = n.a + pi / 3 + .4 * Math.sin( mvs * n.v / 10 ),
+          a2 = n.a - pi / 3 - .4 * Math.cos( mvs * n.v / 11 );
         if ( n.action === 'wobble' || n.action === 'reversed' ) {
           a1 = n.a + pi / 3;
           a2 = n.a - pi / 3;
         }
         var arms = [
-          n.npt_xy( a1 - 0.06 * pi, n.r * 1.1 ),
-          n.npt_xy( a1 - 0.18 * pi, n.r * 1.2 ),
-          n.npt_xy( a1 - 0.16 * pi, n.r * 1.4 ),
-          n.npt_xy( a1 + 0.06 * pi, n.r * 1.1 ),
-          n.npt_xy( n.a - 0.06 * pi, n.r * 0.2 ),
-          n.npt_xy( n.a + 0.06 * pi, n.r * 0.2 ),
-          n.npt_xy( a2 + 0.06 * pi, n.r * 1.1 ),
-          n.npt_xy( a2 + 0.18 * pi, n.r * 1.2 ),
-          n.npt_xy( a2 + 0.16 * pi, n.r * 1.4 ),
-          n.npt_xy( a2 - 0.06 * pi, n.r * 1.1 ),
-          n.npt_xy( n.a - 0.06 * pi, n.r * 0.2 ),
-          n.npt_xy( n.a + 0.06 * pi, n.r * 0.2 )
+          n.npt_xy( a1 - .06 * pi, n.r * 1.1 ),
+          n.npt_xy( a1 - .18 * pi, n.r * 1.2 ),
+          n.npt_xy( a1 - .16 * pi, n.r * 1.4 ),
+          n.npt_xy( a1 + .06 * pi, n.r * 1.1 ),
+          n.npt_xy( n.a - .06 * pi, n.r * .2 ),
+          n.npt_xy( n.a + .06 * pi, n.r * .2 ),
+          n.npt_xy( a2 + .06 * pi, n.r * 1.1 ),
+          n.npt_xy( a2 + .18 * pi, n.r * 1.2 ),
+          n.npt_xy( a2 + .16 * pi, n.r * 1.4 ),
+          n.npt_xy( a2 - .06 * pi, n.r * 1.1 ),
+          n.npt_xy( n.a - .06 * pi, n.r * .2 ),
+          n.npt_xy( n.a + .06 * pi, n.r * .2 )
         ];
         var pts = [
           n.npt_xy( n.a, n.r * 1.1 ),
-          n.npt_xy( n.a + pi * 0.3, n.r),
-          n.npt_xy( n.a + pi * 0.91, n.r),
+          n.npt_xy( n.a + pi * .3, n.r),
+          n.npt_xy( n.a + pi * .91, n.r),
           n.npt_xy( n.a + pi * 1.09, n.r),
           n.npt_xy( n.a + pi * 1.7, n.r)
         ];
@@ -68,10 +72,6 @@ var Nmy2 = function() {
         utl.shape_start( pts[ 0 ] );
         utl.lns_frm_arr( pts );
         utl.shape_stop();
-        break;
-
-      case 'death':
-        n.drw_death();
         break;
     }
   }

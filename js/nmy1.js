@@ -4,9 +4,10 @@ var Nmy1 = function() {
 
   n.r = 7.5;
   n.shyness = 80 * n.v;
-  n.clockwise = ( ( utl.any( 2, 0 ) ) - 0.5 );
-  n.av = 0.2;
+  n.clockwise = ( ( utl.any( 2, 0 ) ) - .5 );
+  n.av = .2;
   n.spin = 0;
+  n.v = utl.infany( .8 ) + .8;
 
   n.circle = function() {
     var pdir = n.get_pdir();
@@ -18,7 +19,7 @@ var Nmy1 = function() {
 
   n.retreat = function() {
     var pdir = n.get_pdir();
-    n.a = ( 2 * pi + n.a - utl.which_way ( n.a, pdir ) * 0.01 ) % ( pi * 2 );
+    n.a = ( 2 * pi + n.a - utl.which_way ( n.a, pdir ) * .01 ) % ( pi * 2 );
     n.translate();
     n.trail_wobble();
     n.tail_test ();
@@ -34,7 +35,7 @@ var Nmy1 = function() {
         }
         break;
       case 'circle' :
-        if ( utl.is_close( n.x, n.y, n.shyness * 0.9, env.x, env.y, 0 ) ) {
+        if ( utl.is_close( n.x, n.y, n.shyness * .9, env.x, env.y, 0 ) ) {
           n.action = 'retreat';
         } else if ( !( utl.is_close( n.x, n.y, n.shyness * 1.2, env.x, env.y, 0 ) ) ) {
           n.action = 'follow';
@@ -43,7 +44,7 @@ var Nmy1 = function() {
           if ( game_mode === 'start' && nxt_bmb <= 0 ) {
             if ( utl.get_first_close_nmy( n.x, n.y ) ) {
               nmys.push( new NmyBllt( n.x, n.y ) );
-              var vol = utl.on_scrn( n.x, n.y ) ? 1 : 0.4;
+              var vol = utl.on_scrn( n.x, n.y ) ? 1 : .4;
               snds.shoot( vol );
             }
           }
@@ -59,7 +60,7 @@ var Nmy1 = function() {
           if ( nxt_bmb <= 0 ) {
             if ( utl.get_first_close_nmy( n.x, n.y ) ) {
               nmys.push( new PlrBllt( n.x, n.y ) );
-              var vol = utl.on_scrn( n.x, n.y ) ? 1 : 0.4; 
+              var vol = utl.on_scrn( n.x, n.y ) ? 1 : .4; 
               snds.shoot( vol );
             }
           }
@@ -74,6 +75,10 @@ var Nmy1 = function() {
   };
 
   n.drw = function( ex, ey ) {
+    if ( n.action === 'death' ) { n.drw_death(); }
+    if ( !utl.is_showing ( n.x, n.y, n.r )) {
+      return;
+    }
     switch ( n.action ) {
       case 'follow' :
       case 'wobble' :
@@ -95,7 +100,7 @@ var Nmy1 = function() {
         } else {
           if ( game_mode !== 'pause' ) { n.spin += n.av / 30; }
           if ( !~~( frame % ( 200 - Math.abs( n.av ) * 50 ) ) ) {
-            n.av = utl.infany( 0.75 ) + 0.5;
+            n.av = utl.infany( .75 ) + .5;
             if ( ~~utl.any( 2, 0 ) ) {
               n.av *= -1;
             }
@@ -123,9 +128,6 @@ var Nmy1 = function() {
         utl.shape_start( pts[ 0 ] );
         utl.lns_frm_arr( pts );
         utl.shape_stop();
-        break;
-      case 'death' :
-        n.drw_death();
         break;
     }
   };

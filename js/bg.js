@@ -2,7 +2,6 @@ var Bg = function( dist ) {
     var x = Math.random() * env.w,
     y = Math.random() * env.h,
     d = Math.round( dist / 20 ),
-    // r = Math.round(820 / d),
     r = 190,
     col_step = Math.round(d/2),
     c = '',
@@ -16,7 +15,7 @@ var Bg = function( dist ) {
     }
   return {
     drw: function( ex, ey ) {
-      if ( !utl.is_showing ( x, y, r )) {
+      if ( !utl.is_showing ( x, y, r ) ) {
         return;
       }
       var xy0 = utl.get_xy_0( x, y, dist );
@@ -29,7 +28,7 @@ var Bg = function( dist ) {
       cx.fillStyle = c;
       utl.shape_start( first );
       for ( var p = pts.length - 1; p > -1; p--) {
-        var sxy = utl.get_xy_course ( a + pts[ p ][ 0 ], pts[ p ][ 1 ], sx, sy )
+        var sxy = utl.get_xy ( a + pts[ p ][ 0 ], pts[ p ][ 1 ], sx, sy )
         cx.lineTo( sxy[ 0 ], sxy[ 1 ] );
         pts[ p ][ 1 ] = r + utl.throb( r, pts[ p ][ 0 ] );
       }

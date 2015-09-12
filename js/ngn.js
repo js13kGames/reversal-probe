@@ -1,22 +1,14 @@
-/* todos
-
-window resize: change cvh/cvw
-layered scrolling - bgs + nmys
-
-*/
-var count = 0;
 cx.scale( 2, 2 );
 
 var Ngn = function() {
   function drw() {
     requestAnimationFrame( drw );
-    if ( paused === 1 ) { return; };
     env.bg_col = [
       8 + 6 * Math.sin( frame / ( 20 + uniqr * 40 ) / 30 + uniqr * 6),
       8 + 6 * Math.sin( frame / ( 20 + uniqg * 40 ) / 30 + uniqg * 6),
       8 + 6 * Math.sin( frame / ( 20 + uniqb * 40 ) / 30 + uniqb * 6) ];
 
-    cx.fillStyle = 'rgb(40,38,35)';
+    cx.fillStyle = '#292724';
     cx.rect(0, 0, cvw, cvh);
     cx.fill();
     if ( bgs.length ) {
@@ -35,30 +27,23 @@ var Ngn = function() {
   };
   function mv() {
     toa = window.setTimeout( mv, 17 );
-    mvs++;
     if ( game_mode === 'pause' ) { return; }
+    mvs++;
     for ( var i = 0, l = nmys.length; i < l; i++ ) {
       if ( nmys[ i ] ) {
         nmys[ i ].mv( i );
       }
     }
     if ( game_mode !== 'start') { return; }
-    if ( num_nmys < ( 2 + Math.min( mvs / 1000, 250 ) ) &&
-      ~~( utl.any( 1000 - Math.min ( mvs / 1000, 250 ) ) ) === 0 ) {
-      var nnum = utl.any( ~~( Math.min ( mvs / 2700 + 1, 3 ) ), 0 ) + 1;
+    if ( num_nmys < ( 2 + Math.min( mvs / 500, 100 ) ) ) {
+      var nnum = Math.min( utl.any( ~~( Math.min( mvs / 2700 + 1, 7 ) ), 0 ), 3 ) + 1;
       nmys.push( new window[ 'Nmy' + nnum ]() );
       num_nmys++;
     }
     if ( plr ) { plr.mv(); };
   };
-  function frm() {
-    tof = window.setTimeout( frm, 1000 );
-    // console.log ( 'fps: ' + ( frame - lastframe ) );
-    lastframe = frame;
-  };
   drw();
   mv();
-  frm();
   return {
     end_game: function() {
       game_mode = 'init';
@@ -78,7 +63,6 @@ var Ngn = function() {
         case 'init' :
           game_mode = 'start';
           nmys = [];
-          nmys.push( new Nmy1() );
           plr = new Plr();
           scrbrd = new Scrbrd;
           rgd = {
@@ -101,11 +85,9 @@ var Ngn = function() {
           env.x = 1500;
           num_nmys = 0,
           env.y = 2100;
-          frame = 0;
-          lastframe = 0;
-          uniqr = Math.random();
-          uniqg = Math.random();
-          uniqb = Math.random();
+          uniqr = utl.infany( 1 )
+          uniqg = utl.infany( 1 );
+          uniqb = utl.infany( 1 );
           bgs = [];
           snds.reset();
           mvs = 0;
@@ -121,12 +103,7 @@ var Ngn = function() {
           game_mode = 'pause';
           break;
       }
-      console.log (game_mode);
     }
   }
 }
-if(document.addEventListener) {
-  document.addEventListener( "visibilitychange", utl.visibility_event );
-}
 var ngn = new Ngn();
-

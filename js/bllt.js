@@ -9,6 +9,9 @@ var Bllt = function( ex, ey ) {
   n.glw_cl = 'rgba(255,0,64,0.5)';
 
   n.drw = function( ex, ey ) {
+    if ( !utl.is_showing ( n.x, n.y, n.r )) {
+      return;
+    }
     var pt_tail = n.npt_xy( n.a + pi, n.r * 2.5 ),
       pt_2_a = n.a + ( 21 * pi / 16),
       pt_2 = n.npt_xy ( pt_2_a, n.r );

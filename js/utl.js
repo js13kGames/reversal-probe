@@ -60,7 +60,7 @@ var Utl = function() {
       return ( px > lxmin && px < lxmax && py > lymin && py < lymax );
     },
     in_env: function( bx, by, br ) {
-      return utl.is_in_bounds( -br, env.w + br, -br, env.h + br, bx, by );
+      return utl.is_in_bounds( -br, env.w + 100, -100, env.h + 100, bx, by );
     },
     is_showing: function( x, y, r ) {
       var margin = r * 1.5;
@@ -95,14 +95,11 @@ var Utl = function() {
     remove_nmy: function( nmy_pos ) {
       nmys.splice( nmy_pos, 1 );
     },
-    visibility_event: function() {
-      paused = document.hidden ? 1 : 0;
-    },
     get_first_close_nmy: function( x, y ) {
       for ( var n = 0, l = nmys.length; n < l; n++ ) {
         var nmy = nmys[ n ];
         if ( Math.abs( nmy.x - x ) < 300 && Math.abs ( nmy.y - y ) < 300 ) {
-          if ( [ 'follow', 'circle', 'retreat', 'randomy' ].indexOf( nmy.action ) > -1 ) {
+          if ( [ 'follow', 'circle', 'retreat', 'randomy', 'group' ].indexOf( nmy.action ) > -1 ) {
             return nmy;
           }
         }
@@ -117,6 +114,18 @@ var Utl = function() {
           nmy.death_init();
           scrbrd.pt();
           return true;
+        }
+        if ( nmy.action === 'group' ) {
+          for ( var m = 0, ml = nmy.mmbrs.length; m < ml; m++ ) {
+            var mem = nmy.mmbrs[ m ];
+            if ( mem.action === 'member' ) {
+              if ( utl.is_close( nmy.mmbrs[ m ].x, nmy.mmbrs[ m ].y, nmy.mmbrs[ m ].r, bx, by, br ) ) {
+                nmy.mmbrs[ m ].death_init();
+                scrbrd.pt();
+                return true;
+              }
+            }
+          }
         }
       }
     },

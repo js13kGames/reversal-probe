@@ -35,7 +35,7 @@ var Plr = function() {
     is_touching_trail: function( nmyx, nmyy, nmyr ) {
       if ( game_mode !== 'start' ) { return; };
       for ( var t = trail.length - 1; t > 0; t-- ) {
-        if ( utl.is_close_course( nmyx, nmyy, nmyr, trail[ t ][ 0 ], trail[ t ][ 1 ], 0 ) ) {
+        if ( utl.is_close_course( nmyx, nmyy, nmyr, trail[ t ][ 0 ], trail[ t ][ 1 ], 2 ) ) {
           return true;
         }
       }
@@ -67,6 +67,7 @@ var Plr = function() {
               nmys.push( nmy );
             }
             ngn.end_game();
+            scrbrd.die();
             tail = [];
             trail = [];
           }
@@ -240,7 +241,7 @@ var Plr = function() {
 
       xy = xy_c;
       //thrusties
-      if ( ins.keysDown.up ) {
+      if ( game_mode === 'start' && ins.keysDown.up ) {
         cx.beginPath();
         cx.strokeStyle = 'rgb(150,150,150)';
         var fxy = utl.get_xy ( ang, -3 * r, xy[ 0 ], xy[ 1 ]);
